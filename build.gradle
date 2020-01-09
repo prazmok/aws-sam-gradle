@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.10.0'
+}
+
+repositories {
+    jcenter()
+}
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+version = '0.0.1'
+group = 'com.github.prazmok'
+
+dependencies {
+    implementation gradleApi()
+    implementation "com.github.jengelman.gradle.plugins:shadow:5.2.0"
+
+    testImplementation 'junit:junit:4.12'
+}
+
+gradlePlugin {
+    plugins {
+        awsSamPlugin {
+            id = 'com.github.prazmok.aws-sam'
+            implementationClass = 'com.github.prazmok.aws.sam.AwsSamPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/prazmok/aws-sam-gradle'
+    vcsUrl = 'https://github.com/prazmok/aws-sam-gradle'
+    description = 'Gradle plugin for deploying AWS Serverless Application Models using CloudFormation'
+    tags = ['sam', 'aws', 'serverless', 'lambda']
+
+    plugins {
+        awsSamPlugin {
+            displayName = 'AWS serverless deployment plugin'
+        }
+    }
+}

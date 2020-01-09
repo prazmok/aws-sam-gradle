@@ -1,0 +1,38 @@
+buildscript {
+    dependencies {
+        classpath files('../build/classes/java/main')
+    }
+}
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
+apply plugin: com.github.prazmok.aws.sam.AwsSamPlugin
+
+repositories {
+    jcenter()
+}
+
+version = '0.0.1'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+deployment {
+    samTemplateFile = "template.yml"
+    awsRegion = "eu-west-1"
+    s3Bucket = "example-s3-bucket"
+    s3Prefix = "example-s3-prefix"
+    stackName = "example-cloud-formation-stack"
+
+    environments {
+        dev {
+            debug = true
+            parameterOverrides = [
+                ExampleParameter: 'ExampleValue'
+            ]
+        }
+    }
+}

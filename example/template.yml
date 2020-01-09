@@ -1,0 +1,25 @@
+Transform: "AWS::Serverless-2016-10-31"
+Description: "Example Serverless Function"
+
+Parameters:
+  ExampleParameter:
+    Description: "Example parameter"
+    Type: "String"
+
+Globals:
+  Function:
+    Runtime: "java11"
+    MemorySize: 128
+    Timeout: 3
+
+Resources:
+  JavaLambdaFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      Handler: "com.prazmok.JavaHandler::handle"
+      CodeUri: ${CodeUri}
+
+Outputs:
+  JavaLambdaFunction:
+    Description: "JavaLambdaFunction Arn"
+    Value: !GetAtt JavaLambdaFunction.Arn
