@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public class PackageTask extends Exec {
     private final Config config;
     private final Logger logger;
+    private final SamCommandBuilder samCommandBuilder = new SamCommandBuilder();
 
     @Inject
     public PackageTask(Config config, Logger logger) {
@@ -27,9 +28,23 @@ public class PackageTask extends Exec {
     @Override
     protected void exec() {
         try {
-            Path generatedSamTemplate = prepareSourceSamTemplate();
+            if (!prepareSourceSamTemplate()) {
+                throw new Exception("Couldn't generate source SAM template!");
+            }
 
-            commandLine("ls");
+            samCommandBuilder.task("package")
+                .option("--force-upload", config.forceUpload())
+                .option("--use-json", config.useJson())
+                .option("--debug", config.debug())
+                .argument("--template-file", config.getGeneratedSamTemplatePath().toString())
+                .argument("--output-template-file", config.getOutputSamTemplatePath().toString())
+                .argument("--s3-bucket", config.getS3Bucket())
+                .argument("--s3-prefix", config.getS3Prefix())
+                .argument("--profile", config.getAwsProfile())
+                .argument("--region", config.getAwsRegion())
+                .argument("--kms-key-id", config.getKmsKeyId());
+
+            commandLine(samCommandBuilder.build());
 
             super.exec();
         } catch (Exception e) {
@@ -37,8 +52,8 @@ public class PackageTask extends Exec {
         }
     }
 
-    // todo extract it to separate task perhaps???
-    private Path prepareSourceSamTemplate() throws Exception {
+    // todo extract it to separate task perhaps???s
+    private boolean prepareSourceSamTemplate() throws Exception {
         File tmpDir = config.getSamTmpDir();
 
         if (!tmpDir.exists() && !tmpDir.mkdirs()) {
@@ -49,7 +64,9 @@ public class PackageTask extends Exec {
         String content = new String(Files.readAllBytes(config.getSamTemplate().toPath()));
         content = replaceCodeUriParam(content);
 
-        return Files.write(config.getGeneratedSamTemplatePath(), content.getBytes(charset));
+        Path generatedFile = Files.write(config.getGeneratedSamTemplatePath(), content.getBytes(charset));
+
+        return generatedFile.toFile().exists();
     }
 
     private String replaceCodeUriParam(String content) {
