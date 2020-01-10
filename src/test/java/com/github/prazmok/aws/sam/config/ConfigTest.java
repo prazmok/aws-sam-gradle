@@ -1,6 +1,6 @@
 package com.github.prazmok.aws.sam.config;
 
-import com.github.prazmok.aws.sam.config.exception.MissingConfigPropertyException;
+import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,15 +55,15 @@ public class ConfigTest {
         assertFalse(config.confirmChangeset());
 
         // Assert exceptions when missing required configuration properties
-        assertThrows(MissingConfigPropertyException.class, config::getSamTemplateFile);
-        assertThrows(MissingConfigPropertyException.class, config::getAwsRegion);
-        assertThrows(MissingConfigPropertyException.class, config::getS3Bucket);
-        assertThrows(MissingConfigPropertyException.class, config::getS3Prefix);
-        assertThrows(MissingConfigPropertyException.class, config::getStackName);
+        assertThrows(MissingConfigurationException.class, config::getSamTemplateFile);
+        assertThrows(MissingConfigurationException.class, config::getAwsRegion);
+        assertThrows(MissingConfigurationException.class, config::getS3Bucket);
+        assertThrows(MissingConfigurationException.class, config::getS3Prefix);
+        assertThrows(MissingConfigurationException.class, config::getStackName);
     }
 
     @Test
-    public void testExtensionConfig() throws MissingConfigPropertyException {
+    public void testExtensionConfig() throws MissingConfigurationException {
         when(envs.getByName("test")).thenReturn(new Environment("test"));
         Config config = new Config(project, getBaseExtension(), "test");
 
@@ -99,7 +99,7 @@ public class ConfigTest {
     }
 
     @Test
-    public void testExtendedEnvironmentConfig() throws MissingConfigPropertyException {
+    public void testExtendedEnvironmentConfig() throws MissingConfigurationException {
         when(envs.getByName("test")).thenReturn(getReachEnvironment());
         Config config = new Config(project, getBaseExtension(), "test");
 

@@ -2,7 +2,7 @@ package com.github.prazmok.aws.sam.config;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
-import com.github.prazmok.aws.sam.config.exception.MissingConfigPropertyException;
+import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.internal.TaskOutputsInternal;
@@ -45,24 +45,24 @@ public class Config {
         return project.getRootDir();
     }
 
-    public String getSamTemplateFile() throws MissingConfigPropertyException {
+    public String getSamTemplateFile() throws MissingConfigurationException {
         if (getEnvironment().samTemplateFile != null) {
             return getEnvironment().samTemplateFile;
         } else if (extension.samTemplateFile != null) {
             return extension.samTemplateFile;
         }
 
-        throw new MissingConfigPropertyException("samTemplateFile");
+        throw new MissingConfigurationException("samTemplateFile");
     }
 
-    public String getAwsRegion() throws MissingConfigPropertyException {
+    public String getAwsRegion() throws MissingConfigurationException {
         if (getEnvironment().awsRegion != null) {
             return getEnvironment().awsRegion;
         } else if (extension.awsRegion != null) {
             return extension.awsRegion;
         }
 
-        throw new MissingConfigPropertyException("awsRegion");
+        throw new MissingConfigurationException("awsRegion");
     }
 
     public String getAwsProfile() {
@@ -85,34 +85,34 @@ public class Config {
         return null;
     }
 
-    public String getS3Bucket() throws MissingConfigPropertyException {
+    public String getS3Bucket() throws MissingConfigurationException {
         if (getEnvironment().s3Bucket != null) {
             return getEnvironment().s3Bucket;
         } else if (extension.s3Bucket != null) {
             return extension.s3Bucket;
         }
 
-        throw new MissingConfigPropertyException("s3Bucket");
+        throw new MissingConfigurationException("s3Bucket");
     }
 
-    public String getS3Prefix() throws MissingConfigPropertyException {
+    public String getS3Prefix() throws MissingConfigurationException {
         if (getEnvironment().s3Prefix != null) {
             return getEnvironment().s3Prefix;
         } else if (extension.s3Prefix != null) {
             return extension.s3Prefix;
         }
 
-        throw new MissingConfigPropertyException("s3Prefix");
+        throw new MissingConfigurationException("s3Prefix");
     }
 
-    public String getStackName() throws MissingConfigPropertyException {
+    public String getStackName() throws MissingConfigurationException {
         if (getEnvironment().stackName != null) {
             return getEnvironment().stackName;
         } else if (extension.stackName != null) {
             return extension.stackName;
         }
 
-        throw new MissingConfigPropertyException("stackName");
+        throw new MissingConfigurationException("stackName");
     }
 
     public String getRoleArn() {
@@ -231,15 +231,15 @@ public class Config {
         return new File(project.getBuildDir() + File.separator + "tmp" + File.separator + "sam");
     }
 
-    public File getSamTemplate() throws MissingConfigPropertyException {
+    public File getSamTemplate() throws MissingConfigurationException {
         return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
     }
 
-    public Path getGeneratedSamTemplatePath() throws MissingConfigPropertyException {
+    public Path getGeneratedSamTemplatePath() throws MissingConfigurationException {
         return Paths.get(getSamTmpDir() + File.separator + "generated." + getSamTemplateFile());
     }
 
-    public Path getOutputSamTemplatePath() throws MissingConfigPropertyException {
+    public Path getOutputSamTemplatePath() throws MissingConfigurationException {
         return Paths.get(getSamTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }
 
