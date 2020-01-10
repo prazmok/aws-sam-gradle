@@ -2,8 +2,9 @@ package com.github.prazmok.aws.sam.config;
 
 import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
-import com.github.prazmok.aws.sam.AwsSamPlugin;
+import com.github.prazmok.aws.sam.config.exception.MissingConfigPropertyException;
 import org.gradle.api.Project;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.internal.TaskOutputsInternal;
 
 import java.io.File;
@@ -15,18 +16,23 @@ public class Config {
     private final Project project;
     private final AwsSamExtension extension;
     private final String environment;
-    private final ConfigProperties properties = new ConfigProperties();
 
-    public Config(Project project) {
+    public Config(Project project, AwsSamExtension extension, String environment) {
         this.project = project;
-        this.extension = (AwsSamExtension) project.getExtensions().getByName(AwsSamPlugin.SAM_DEPLOY_EXTENSION);
-        this.environment = project.hasProperty("environment")
-            ? (String) project.getProperties().get("environment")
-            : "test";
+        this.extension = extension;
+        this.environment = environment;
     }
 
     public Environment getEnvironment() {
-        return extension.environments.getByName(environment);
+        Environment env;
+
+        try {
+            env = extension.environments.getByName(environment);
+        } catch (UnknownDomainObjectException e) {
+            env = new Environment("test");
+        }
+
+        return env;
     }
 
     public File getSamTemplatePath() {
@@ -39,24 +45,24 @@ public class Config {
         return project.getRootDir();
     }
 
-    public String getSamTemplateFile() {
+    public String getSamTemplateFile() throws MissingConfigPropertyException {
         if (getEnvironment().samTemplateFile != null) {
             return getEnvironment().samTemplateFile;
         } else if (extension.samTemplateFile != null) {
             return extension.samTemplateFile;
         }
 
-        throw missingRequiredConfigPropertyException("samTemplateFile");
+        throw new MissingConfigPropertyException("samTemplateFile");
     }
 
-    public String getAwsRegion() {
+    public String getAwsRegion() throws MissingConfigPropertyException {
         if (getEnvironment().awsRegion != null) {
             return getEnvironment().awsRegion;
         } else if (extension.awsRegion != null) {
             return extension.awsRegion;
         }
 
-        throw missingRequiredConfigPropertyException("awsRegion");
+        throw new MissingConfigPropertyException("awsRegion");
     }
 
     public String getAwsProfile() {
@@ -79,34 +85,34 @@ public class Config {
         return null;
     }
 
-    public String getS3Bucket() {
+    public String getS3Bucket() throws MissingConfigPropertyException {
         if (getEnvironment().s3Bucket != null) {
             return getEnvironment().s3Bucket;
         } else if (extension.s3Bucket != null) {
             return extension.s3Bucket;
         }
 
-        throw missingRequiredConfigPropertyException("s3Bucket");
+        throw new MissingConfigPropertyException("s3Bucket");
     }
 
-    public String getS3Prefix() {
+    public String getS3Prefix() throws MissingConfigPropertyException {
         if (getEnvironment().s3Prefix != null) {
             return getEnvironment().s3Prefix;
         } else if (extension.s3Prefix != null) {
             return extension.s3Prefix;
         }
 
-        throw missingRequiredConfigPropertyException("s3Prefix");
+        throw new MissingConfigPropertyException("s3Prefix");
     }
 
-    public String getStackName() {
+    public String getStackName() throws MissingConfigPropertyException {
         if (getEnvironment().stackName != null) {
             return getEnvironment().stackName;
         } else if (extension.stackName != null) {
             return extension.stackName;
         }
 
-        throw missingRequiredConfigPropertyException("stackName");
+        throw new MissingConfigPropertyException("stackName");
     }
 
     public String getRoleArn() {
@@ -221,25 +227,19 @@ public class Config {
         return new LinkedList<>();
     }
 
-    public Path getSamTemplate() {
+    public Path getSamTemplate() throws MissingConfigPropertyException {
         return Paths.get(getSamTemplatePath() + File.separator + getSamTemplateFile());
     }
 
-    public File getAwsSamTmpDirPath() throws Exception {
-        File dir = new File(project.getBuildDir() + File.separator + "tmp" + File.separator + "sam");
-
-        if (!dir.mkdirs()) {
-            throw new Exception("Couldn't create temporary directory for generated SAM template!");
-        }
-
-        return dir;
+    public File getAwsSamTmpDirPath() {
+        return new File(project.getBuildDir() + File.separator + "tmp" + File.separator + "sam");
     }
 
-    public Path getGeneratedSamTemplatePath() throws Exception {
+    public Path getGeneratedSamTemplatePath() throws MissingConfigPropertyException {
         return Paths.get(getAwsSamTmpDirPath() + File.separator + "generated." + getSamTemplateFile());
     }
 
-    public Path getOutputSamTemplatePath() throws Exception {
+    public Path getOutputSamTemplatePath() throws MissingConfigPropertyException {
         return Paths.get(getAwsSamTmpDirPath() + File.separator + "packaged." + getSamTemplateFile());
     }
 
@@ -248,9 +248,5 @@ public class Config {
         TaskOutputsInternal outputs = Objects.requireNonNull(shadowJar).getOutputs();
 
         return outputs.getFiles().getSingleFile();
-    }
-
-    private IllegalArgumentException missingRequiredConfigPropertyException(String property) {
-        return new IllegalArgumentException("Missing \"" + property + "\" configuration property!");
     }
 }

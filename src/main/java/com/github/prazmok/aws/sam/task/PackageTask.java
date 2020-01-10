@@ -6,6 +6,7 @@ import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskAction;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,10 +26,8 @@ public class PackageTask extends Exec {
     @TaskAction
     @Override
     protected void exec() {
-        logger.info("SAM PACKAGE FOR ENV: " + config.getEnvironment().name);
-
         try {
-            var generatedSamTemplate = prepareSourceSamTemplate();
+            Path generatedSamTemplate = prepareSourceSamTemplate();
 
             commandLine("ls");
 
@@ -40,6 +39,12 @@ public class PackageTask extends Exec {
 
     // todo extract it to separate task perhaps???
     private Path prepareSourceSamTemplate() throws Exception {
+        File tmpDir = config.getAwsSamTmpDirPath();
+
+        if (!tmpDir.exists() && !tmpDir.mkdirs()) {
+            throw new Exception("Couldn't create temporary directory for SAM templates!");
+        }
+
         Charset charset = StandardCharsets.UTF_8;
         String content = Files.readString(config.getSamTemplate(), charset);
         content = replaceCodeUriParam(content);

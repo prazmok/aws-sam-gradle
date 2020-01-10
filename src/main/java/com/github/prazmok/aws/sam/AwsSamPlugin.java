@@ -24,19 +24,22 @@ public class AwsSamPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         this.project = project;
-        final NamedDomainObjectContainer<Environment> envs = project.container(Environment.class);
-        final AwsSamExtension extension = project.getExtensions().create(SAM_DEPLOY_EXTENSION, AwsSamExtension.class, envs);
-        ((ExtensionAware) extension).getExtensions().add(SAM_DEPLOY_ENVIRONMENTS, envs);
-        Config config = new Config(project);
 
+        final NamedDomainObjectContainer<Environment> envs = project.container(Environment.class);
+        final AwsSamExtension extension = project.getExtensions()
+            .create(SAM_DEPLOY_EXTENSION, AwsSamExtension.class, envs);
+        ((ExtensionAware) extension).getExtensions().add(SAM_DEPLOY_ENVIRONMENTS, envs);
+        final String environment = project.hasProperty("environment")
+            ? (String) project.getProperties().get("environment") : "test";
+        Config config = new Config(project, extension, environment);
         packageTask(config);
-//        deployTask();
+//        deployTask(config);
     }
 
     private void packageTask(Config config) {
         Object[] dependsOn = {"clean", "build", ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME()};
         Object[] constructorArgs = {config, project.getLogger()};
-        Map<String, Object> taskParams = new HashMap<>() {{
+        Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("group", "AWS SAM");
             put("description", "Packages an AWS SAM application.");

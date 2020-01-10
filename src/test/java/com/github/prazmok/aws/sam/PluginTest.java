@@ -2,13 +2,17 @@ package com.github.prazmok.aws.sam;
 
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
+import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Arrays.asList;
+import static org.gradle.internal.impldep.org.junit.Assert.assertEquals;
+import static org.gradle.internal.impldep.org.junit.Assert.assertTrue;
 
 public class PluginTest {
     private static final String ENV = "test";
@@ -17,9 +21,16 @@ public class PluginTest {
     private BuildResult buildResult;
 
     @Test
-    public void testDeployMinimalApp() {
-//        gradleExecute(EXAMPLE_PROJECT_DIR, "clean", "hello");
-//        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":hello")).getOutcome());
+    public void testPackageSamTask() {
+        gradleExecute(EXAMPLE_PROJECT_DIR, "packageSam");
+
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":clean")).getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":build")).getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":shadowJar")).getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":packageSam")).getOutcome());
+
+        File file = new File(EXAMPLE_PROJECT_DIR + "/build/tmp/sam/generated.template.yml");
+        assertTrue(file.exists());
     }
 
     private void gradleExecute(File projectDir, String... arguments) {
