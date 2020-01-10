@@ -46,7 +46,7 @@ public class PackageTask extends Exec {
         }
 
         Charset charset = StandardCharsets.UTF_8;
-        String content = Files.readString(config.getSamTemplate(), charset);
+        String content = new String(Files.readAllBytes(config.getSamTemplate()));
         content = replaceCodeUriParam(content);
 
         return Files.write(config.getGeneratedSamTemplatePath(), content.getBytes(charset));
