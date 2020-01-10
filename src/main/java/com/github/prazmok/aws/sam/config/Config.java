@@ -29,7 +29,7 @@ public class Config {
         try {
             env = extension.environments.getByName(environment);
         } catch (UnknownDomainObjectException e) {
-            env = new Environment("test");
+            env = new Environment(environment);
         }
 
         return env;
@@ -204,7 +204,7 @@ public class Config {
             return extension.parameterOverrides;
         }
 
-        return new HashMap<>();
+        return new LinkedHashMap<>();
     }
 
     public List<String> getTags() {
@@ -227,20 +227,20 @@ public class Config {
         return new LinkedList<>();
     }
 
-    public Path getSamTemplate() throws MissingConfigPropertyException {
-        return Paths.get(getSamTemplatePath() + File.separator + getSamTemplateFile());
-    }
-
-    public File getAwsSamTmpDirPath() {
+    public File getSamTmpDir() {
         return new File(project.getBuildDir() + File.separator + "tmp" + File.separator + "sam");
     }
 
+    public File getSamTemplate() throws MissingConfigPropertyException {
+        return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
+    }
+
     public Path getGeneratedSamTemplatePath() throws MissingConfigPropertyException {
-        return Paths.get(getAwsSamTmpDirPath() + File.separator + "generated." + getSamTemplateFile());
+        return Paths.get(getSamTmpDir() + File.separator + "generated." + getSamTemplateFile());
     }
 
     public Path getOutputSamTemplatePath() throws MissingConfigPropertyException {
-        return Paths.get(getAwsSamTmpDirPath() + File.separator + "packaged." + getSamTemplateFile());
+        return Paths.get(getSamTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }
 
     public File getShadowJarFile() {

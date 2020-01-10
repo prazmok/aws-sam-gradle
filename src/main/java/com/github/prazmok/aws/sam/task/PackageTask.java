@@ -39,14 +39,14 @@ public class PackageTask extends Exec {
 
     // todo extract it to separate task perhaps???
     private Path prepareSourceSamTemplate() throws Exception {
-        File tmpDir = config.getAwsSamTmpDirPath();
+        File tmpDir = config.getSamTmpDir();
 
         if (!tmpDir.exists() && !tmpDir.mkdirs()) {
             throw new Exception("Couldn't create temporary directory for SAM templates!");
         }
 
         Charset charset = StandardCharsets.UTF_8;
-        String content = new String(Files.readAllBytes(config.getSamTemplate()));
+        String content = new String(Files.readAllBytes(config.getSamTemplate().toPath()));
         content = replaceCodeUriParam(content);
 
         return Files.write(config.getGeneratedSamTemplatePath(), content.getBytes(charset));

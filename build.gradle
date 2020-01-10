@@ -19,8 +19,12 @@ dependencies {
     implementation gradleApi()
     implementation "com.github.jengelman.gradle.plugins:shadow:5.2.0"
 
-    testImplementation 'junit:junit:4.13'
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
     testImplementation 'org.mockito:mockito-core:3.2.4'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 gradlePlugin {
