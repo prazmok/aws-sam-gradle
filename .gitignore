@@ -8,3 +8,6 @@ gradle-app.setting
 .gradletasknamecache
 /.project
 .idea
+aws-sam-gradle.iml
+aws-sam-gradle.ipr
+aws-sam-gradle.iws
