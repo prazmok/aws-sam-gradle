@@ -11,9 +11,6 @@ env:
     - CI=true
     - TERM=dumb
 
-script:
-  - ./gradlew build -x signArchives -s
-
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -23,16 +20,16 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-before_install:
-  - python --version
-  - pip --version
-  - sudo pip install --upgrade awscli
-  - aws --version
-  - sudo pip install --upgrade aws-sam-cli
-  - sam --version
+#before_install:
+#  - python --version
+#  - pip --version
+#  - sudo pip install --upgrade awscli
+#  - aws --version
+#  - sudo pip install --upgrade aws-sam-cli
+#  - sam --version
 
-jobs:
-  include:
-    - stage: Run tests
-      script:
-        - ./gradlew assemble --info
+#jobs:
+#  include:
+#    - stage: Run tests
+#      script:
+#        - ./gradlew assemble --info
