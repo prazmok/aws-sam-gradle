@@ -1,11 +1,11 @@
-package com.github.prazmok.aws.sam.task;
+package com.github.prazmok.aws.sam.task.exec;
 
 import java.util.LinkedHashSet;
 
-class SamCommandBuilder {
+public class SamCommandBuilder {
     private final LinkedHashSet<String> params = new LinkedHashSet<>();
 
-    SamCommandBuilder() {
+    public SamCommandBuilder() {
         params.add("sam");
     }
 
@@ -15,10 +15,14 @@ class SamCommandBuilder {
         return this;
     }
 
-    public SamCommandBuilder argument(String argument, String value) {
-        if (value != null && !value.isEmpty()) {
-            params.add(argument);
-            params.add(value);
+    public SamCommandBuilder argument(String argument, Object value) {
+        if (value != null) {
+            String val = value.toString();
+
+            if (!val.isEmpty()) {
+                params.add(argument);
+                params.add(val);
+            }
         }
 
         return this;

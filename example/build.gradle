@@ -23,6 +23,7 @@ targetCompatibility = '11'
 deployment {
     samTemplateFile = "template.yml"
     awsRegion = "eu-west-1"
+    awsProfile = "default"
     s3Bucket = "example-s3-bucket"
     s3Prefix = "example-s3-prefix"
     stackName = "example-cloud-formation-stack"

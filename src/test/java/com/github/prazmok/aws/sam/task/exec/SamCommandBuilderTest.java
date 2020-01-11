@@ -1,4 +1,4 @@
-package com.github.prazmok.aws.sam.task;
+package com.github.prazmok.aws.sam.task.exec;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,13 +9,13 @@ class SamCommandBuilderTest {
     void testCommandBuilder() {
         SamCommandBuilder builder = new SamCommandBuilder();
         builder.task("task");
-        builder.argument("--correctArg", "CorrectVal");
-        builder.argument("--emptyArg", "");
-        builder.argument("--nullArg", null);
         builder.option("--correctOption", true);
         builder.option("--falseOption", false);
         builder.option("--nullOption", null);
-        String expected = "sam task --correctArg CorrectVal --correctOption";
+        builder.argument("--correctArg", "CorrectVal");
+        builder.argument("--emptyArg", "");
+        builder.argument("--nullArg", null);
+        String expected = "sam task --correctOption --correctArg CorrectVal";
         assertEquals(expected, String.join(" ", builder.build()));
     }
 }

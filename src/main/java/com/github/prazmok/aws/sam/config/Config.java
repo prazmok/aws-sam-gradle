@@ -8,8 +8,6 @@ import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.internal.TaskOutputsInternal;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Config {
@@ -235,12 +233,12 @@ public class Config {
         return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
     }
 
-    public Path getGeneratedSamTemplatePath() throws MissingConfigurationException {
-        return Paths.get(getSamTmpDir() + File.separator + "generated." + getSamTemplateFile());
+    public File getGeneratedSamTemplate() throws MissingConfigurationException {
+        return new File(getSamTmpDir() + File.separator + "generated." + getSamTemplateFile());
     }
 
-    public Path getOutputSamTemplatePath() throws MissingConfigurationException {
-        return Paths.get(getSamTmpDir() + File.separator + "packaged." + getSamTemplateFile());
+    public File getOutputSamTemplate() throws MissingConfigurationException {
+        return new File(getSamTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }
 
     public File getShadowJarFile() {

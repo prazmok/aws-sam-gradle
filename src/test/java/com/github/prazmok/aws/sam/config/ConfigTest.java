@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -94,8 +93,8 @@ public class ConfigTest {
 
         assertEquals(new File("./src/test/template.yml"), config.getSamTemplate());
         assertEquals(new File("./build/tmp/sam"), config.getSamTmpDir());
-        assertEquals(Paths.get("./build/tmp/sam/generated.template.yml"), config.getGeneratedSamTemplatePath());
-        assertEquals(Paths.get("./build/tmp/sam/packaged.template.yml"), config.getOutputSamTemplatePath());
+        assertEquals(new File("./build/tmp/sam/generated.template.yml"), config.getGeneratedSamTemplate());
+        assertEquals(new File("./build/tmp/sam/packaged.template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
