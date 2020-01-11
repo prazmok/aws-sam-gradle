@@ -11,7 +11,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,22 +20,20 @@ import static org.mockito.Mockito.when;
 class GenerateTemplateTaskTest {
     @Test
     void generateTemplate() throws Exception {
-        UUID uuid = UUID.randomUUID();
         File tmpDir = new File("build/tmp");
         assertTrue(tmpDir.exists());
 
-        File generatedTemplate = new File(tmpDir + "/generated" + uuid + ".template.yml");
+        File generatedTemplate = new File(tmpDir + "/generated.template.yml");
         generatedTemplate.deleteOnExit();
         assertFalse(generatedTemplate.exists());
 
         File shadowJar = new File(tmpDir + "/aws-sam-gradle-example-0.0.1-all.jar");
-        shadowJar.deleteOnExit();
         assertFalse(shadowJar.exists());
 
         Config config = Mockito.mock(Config.class);
         when(config.getSamTemplateFile()).thenReturn("template.yml");
-        when(config.getSamTemplatePath()).thenReturn(new File("./example"));
-        when(config.getSamTemplate()).thenReturn(new File("./example/template.yml"));
+        when(config.getSamTemplatePath()).thenReturn(new File("./src/test/resources"));
+        when(config.getSamTemplate()).thenReturn(new File("./src/test/resources/template.yml"));
         when(config.getShadowJarFile()).thenReturn(shadowJar);
         when(config.getSamTmpDir()).thenReturn(tmpDir);
         when(config.getGeneratedSamTemplate()).thenReturn(generatedTemplate);
@@ -48,6 +45,8 @@ class GenerateTemplateTaskTest {
         assertTrue(generatedTemplate.exists());
 
         String content = new String(Files.readAllBytes(generatedTemplate.toPath()));
+        assertFalse(content.isEmpty());
+
         Matcher matcher = Pattern.compile("CodeUri: \"(.*)\"").matcher(content);
 
         while (matcher.find()) {
