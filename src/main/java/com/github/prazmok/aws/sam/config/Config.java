@@ -215,6 +215,16 @@ public class Config {
         return new LinkedList<>();
     }
 
+    public List<String> getCapabilities() {
+        if (getEnvironment().capabilities != null) {
+            return getEnvironment().capabilities;
+        } else if (extension.capabilities != null) {
+            return extension.capabilities;
+        }
+
+        return new LinkedList<>();
+    }
+
     public List<String> getNotificationArns() {
         if (getEnvironment().notificationArns != null) {
             return getEnvironment().notificationArns;
@@ -225,8 +235,18 @@ public class Config {
         return new LinkedList<>();
     }
 
-    public File getSamTmpDir() {
-        return new File(project.getBuildDir() + File.separator + "tmp" + File.separator + "sam");
+    public File getTmpDir() {
+        File tmpDir;
+
+        if (getEnvironment().tmpDir != null) {
+            tmpDir = getEnvironment().tmpDir;
+        } else if (extension.tmpDir != null) {
+            tmpDir = extension.tmpDir;
+        } else {
+            tmpDir = project.getBuildDir();
+        }
+
+        return new File(tmpDir + File.separator + "sam");
     }
 
     public File getSamTemplate() throws MissingConfigurationException {
@@ -234,11 +254,11 @@ public class Config {
     }
 
     public File getGeneratedSamTemplate() throws MissingConfigurationException {
-        return new File(getSamTmpDir() + File.separator + "generated." + getSamTemplateFile());
+        return new File(getTmpDir() + File.separator + "generated." + getSamTemplateFile());
     }
 
     public File getOutputSamTemplate() throws MissingConfigurationException {
-        return new File(getSamTmpDir() + File.separator + "packaged." + getSamTemplateFile());
+        return new File(getTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }
 
     public File getShadowJarFile() {

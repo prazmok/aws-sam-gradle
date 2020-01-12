@@ -21,18 +21,36 @@ sourceCompatibility = '11'
 targetCompatibility = '11'
 
 deployment {
+    samTemplatePath = "./"
     samTemplateFile = "template.yml"
     awsRegion = "eu-west-1"
     awsProfile = "default"
+    kmsKeyId = "example-kms-key-id"
     s3Bucket = "example-s3-bucket"
     s3Prefix = "example-s3-prefix"
     stackName = "example-cloud-formation-stack"
+    roleArn = "example-cf-role-arn-assumed-when-executing-the-change-set"
+    forceUpload = false
+    useJson = false
+    debug = false
+    noExecuteChangeset = false
+    failOnEmptyChangeset = false
+    noFailOnEmptyChangeset = false
+    confirmChangeset = false
+    capabilities = ["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"]
+    tags = ["example-tag1", "example-tag2"]
+    notificationArns = ["example-notification-arn1", "example-notification-arn2"]
+    parameterOverrides = [
+        ExampleParameter: 'ExampleValue'
+    ]
 
     environments {
         dev {
+            forceUpload = true
             debug = true
+            failOnEmptyChangeset = true
             parameterOverrides = [
-                ExampleParameter: 'ExampleValue'
+                ExampleParameter: 'ExampleValueExtended'
             ]
         }
     }

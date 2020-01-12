@@ -1,5 +1,6 @@
 package com.github.prazmok.aws.sam.task;
 
+import com.github.prazmok.aws.sam.AwsSamPlugin;
 import com.github.prazmok.aws.sam.config.Config;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -35,7 +36,7 @@ class GenerateTemplateTaskTest {
         when(config.getSamTemplatePath()).thenReturn(new File("./src/test/resources"));
         when(config.getSamTemplate()).thenReturn(new File("./src/test/resources/template.yml"));
         when(config.getShadowJarFile()).thenReturn(shadowJar);
-        when(config.getSamTmpDir()).thenReturn(tmpDir);
+        when(config.getTmpDir()).thenReturn(tmpDir);
         when(config.getGeneratedSamTemplate()).thenReturn(generatedTemplate);
 
         GenerateTemplateTask task = (GenerateTemplateTask) buildTask(config);
@@ -62,6 +63,6 @@ class GenerateTemplateTaskTest {
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, "generateSamTemplate");
+        return project.task(taskParams, AwsSamPlugin.GENERATE_TEMPLATE_TASK_NAME);
     }
 }

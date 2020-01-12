@@ -29,7 +29,7 @@ public class GenerateTemplateTask extends DefaultTask {
 
     @TaskAction
     public void generateTemplate() throws Exception {
-        File tmpDir = config.getSamTmpDir();
+        File tmpDir = config.getTmpDir();
 
         if (!tmpDir.exists() && !tmpDir.mkdirs()) {
             throw new Exception("Couldn't create temporary directory for SAM templates!");

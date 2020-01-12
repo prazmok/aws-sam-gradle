@@ -75,6 +75,8 @@ public class ConfigTest {
         assertEquals("bucket-prefix", config.getS3Prefix());
         assertEquals("cf-stack-name", config.getStackName());
         assertEquals("role-arn", config.getRoleArn());
+        assertEquals(1, config.getCapabilities().size());
+        assertEquals("CAPABILITY_IAM", config.getCapabilities().get(0));
         assertEquals(1, config.getTags().size());
         assertEquals("TAG", config.getTags().get(0));
         assertEquals(1, config.getNotificationArns().size());
@@ -92,9 +94,9 @@ public class ConfigTest {
         assertTrue(config.confirmChangeset());
 
         assertEquals(new File("./src/test/template.yml"), config.getSamTemplate());
-        assertEquals(new File("./build/tmp/sam"), config.getSamTmpDir());
-        assertEquals(new File("./build/tmp/sam/generated.template.yml"), config.getGeneratedSamTemplate());
-        assertEquals(new File("./build/tmp/sam/packaged.template.yml"), config.getOutputSamTemplate());
+        assertEquals(new File("/tmp/sam"), config.getTmpDir());
+        assertEquals(new File("/tmp/sam/generated.template.yml"), config.getGeneratedSamTemplate());
+        assertEquals(new File("/tmp/sam/packaged.template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
@@ -111,6 +113,8 @@ public class ConfigTest {
         assertEquals(config.getS3Prefix(), "env_bucket-prefix");
         assertEquals(config.getStackName(), "env_cf-stack-name");
         assertEquals(config.getRoleArn(), "env_role-arn");
+        assertEquals(1, config.getCapabilities().size());
+        assertEquals("CAPABILITY_NAMED_IAM", config.getCapabilities().get(0));
         assertEquals(config.getTags().size(), 1);
         assertEquals(config.getTags().get(0), "EXTENDED_ENV_TAG");
         assertEquals(config.getNotificationArns().size(), 1);
@@ -126,6 +130,11 @@ public class ConfigTest {
         assertFalse(config.noExecuteChangeset());
         assertFalse(config.noFailOnEmptyChangeset());
         assertFalse(config.confirmChangeset());
+
+        assertEquals(new File("./src/test/resources/env_template.yml"), config.getSamTemplate());
+        assertEquals(new File("./src/test/resources/tmp/sam"), config.getTmpDir());
+        assertEquals(new File("./src/test/resources/tmp/sam/generated.env_template.yml"), config.getGeneratedSamTemplate());
+        assertEquals(new File("./src/test/resources/tmp/sam/packaged.env_template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
@@ -143,6 +152,7 @@ public class ConfigTest {
 
     private AwsSamExtension getBaseExtension() {
         AwsSamExtension extension = new AwsSamExtension(envs);
+        extension.tmpDir = new File("/tmp");
         extension.samTemplatePath = new File("./src/test");
         extension.samTemplateFile = "template.yml";
         extension.awsRegion = "eu-west-1";
@@ -159,6 +169,7 @@ public class ConfigTest {
         extension.failOnEmptyChangeset = false;
         extension.noFailOnEmptyChangeset = true;
         extension.confirmChangeset = true;
+        extension.capabilities = new LinkedList<>(Collections.singletonList("CAPABILITY_IAM"));
         extension.tags = new LinkedList<>(Collections.singletonList("TAG"));
         extension.notificationArns = new LinkedList<>(Collections.singletonList("NotificationArn"));
         extension.parameterOverrides = new LinkedHashMap<>();
@@ -169,6 +180,7 @@ public class ConfigTest {
 
     private Environment getReachEnvironment() {
         Environment env = new Environment("test");
+        env.tmpDir = new File("./src/test/resources/tmp");
         env.samTemplatePath = new File("./src/test/resources");
         env.samTemplateFile = "env_template.yml";
         env.awsRegion = "env_eu-west-1";
@@ -186,6 +198,7 @@ public class ConfigTest {
         env.noFailOnEmptyChangeset = false;
         env.confirmChangeset = false;
         env.notificationArns = new LinkedList<>(Collections.singletonList("ExtendedEnvNotificationArn"));
+        env.capabilities = new LinkedList<>(Collections.singletonList("CAPABILITY_NAMED_IAM"));
         env.tags = new LinkedList<>(Collections.singletonList("EXTENDED_ENV_TAG"));
         env.parameterOverrides = new LinkedHashMap<>();
         env.parameterOverrides.put("SomeExtendedEnvParam", "ExtendedEnvParamValue");

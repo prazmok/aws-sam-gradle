@@ -8,9 +8,12 @@ jdk:
 
 env:
   - CI=true
+  - AWS_ACCESS_KEY_ID=fakeval
+  - AWS_SECRET_ACCESS_KEY=fakeval
+  - AWS_DEFAULT_REGION=eu-west-1
 
 script:
-  - ./gradlew clean build check --info
+  - ./gradlew clean build check
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock

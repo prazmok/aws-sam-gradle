@@ -16,10 +16,10 @@ import java.util.Map;
 
 public class AwsSamPlugin implements Plugin<Project> {
     public static final String SAM_DEPLOY_EXTENSION = "deployment";
-    static final String SAM_DEPLOY_ENVIRONMENTS = "environments";
-    static final String GENERATE_TEMPLATE_TASK_NAME = "generateSamTemplate";
-    static final String SAM_PACKAGE_TASK_NAME = "packageSam";
-    static final String SAM_DEPLOY_TASK_NAME = "deploySam";
+    public static final String SAM_DEPLOY_ENVIRONMENTS = "environments";
+    public static final String GENERATE_TEMPLATE_TASK_NAME = "generateSamTemplate";
+    public static final String SAM_PACKAGE_TASK_NAME = "packageSam";
+    public static final String SAM_DEPLOY_TASK_NAME = "deploySam";
 
     private Project project;
 
