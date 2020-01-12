@@ -7,10 +7,11 @@ jdk:
   - openjdk11
 
 env:
-  - CI=true
-  - AWS_ACCESS_KEY_ID=fakeval
-  - AWS_SECRET_ACCESS_KEY=fakeval
-  - AWS_DEFAULT_REGION=eu-west-1
+  global:
+    - CI=true
+    - AWS_ACCESS_KEY_ID=fakeval
+    - AWS_SECRET_ACCESS_KEY=fakeval
+    - AWS_DEFAULT_REGION=eu-west-1
 
 script:
   - ./gradlew clean build check
