@@ -2,7 +2,7 @@ package com.github.prazmok.aws.sam.task;
 
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
-import com.github.prazmok.aws.sam.task.exec.SamCommandBuilder;
+import com.github.prazmok.aws.sam.task.command.SamCommandBuilder;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskAction;
@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction;
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
 
-public class PackageTask extends Exec {
+public class PackageTask extends Exec implements CommandBuilderAwareInterface {
     private final Config config;
     private final Logger logger;
     private final SamCommandBuilder samCommandBuilder = new SamCommandBuilder();
@@ -25,7 +25,7 @@ public class PackageTask extends Exec {
     @Override
     protected void exec() {
         try {
-            if (!config.getGeneratedSamTemplate().exists()) {
+            if (!config.getGeneratedOutputSamTemplateFile().exists()) {
                 throw new Exception("Couldn't find source SAM template! Please make sure \"generateSamTemplate\" task" +
                     " has been executed!");
             }

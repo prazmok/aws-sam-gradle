@@ -4,6 +4,7 @@ import com.github.prazmok.aws.sam.AwsSamPlugin;
 import com.github.prazmok.aws.sam.config.Config;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.internal.TaskOutputsInternal;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,9 @@ class GenerateTemplateTaskTest {
         GenerateTemplateTask task = (GenerateTemplateTask) buildTask(config);
         task.generateTemplate();
 
+
+        TaskOutputsInternal outputs = Objects.requireNonNull(task).getOutputs();
+        assertEquals(generatedTemplate.getAbsoluteFile(), outputs.getFiles().getSingleFile());
         assertTrue(tmpDir.exists());
         assertTrue(generatedTemplate.exists());
 

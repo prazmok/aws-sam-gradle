@@ -24,7 +24,7 @@ public class GenerateTemplateTask extends DefaultTask {
 
     @OutputFile
     File getGeneratedSamTemplate() throws MissingConfigurationException {
-        return config.getGeneratedSamTemplate();
+        return config.getGeneratedSamTemplate().getAbsoluteFile();
     }
 
     @TaskAction

@@ -4,6 +4,7 @@ import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.prazmok.aws.sam.config.AwsSamExtension;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.Environment;
+import com.github.prazmok.aws.sam.task.DeployTask;
 import com.github.prazmok.aws.sam.task.GenerateTemplateTask;
 import com.github.prazmok.aws.sam.task.PackageTask;
 import org.gradle.api.NamedDomainObjectContainer;
@@ -26,17 +27,14 @@ public class AwsSamPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         this.project = project;
-
         final NamedDomainObjectContainer<Environment> envs = project.container(Environment.class);
-        final AwsSamExtension extension = project.getExtensions()
-            .create(SAM_DEPLOY_EXTENSION, AwsSamExtension.class, envs);
+        final AwsSamExtension extension = project.getExtensions().create(SAM_DEPLOY_EXTENSION, AwsSamExtension.class, envs);
         ((ExtensionAware) extension).getExtensions().add(SAM_DEPLOY_ENVIRONMENTS, envs);
-        final String environment = project.hasProperty("environment")
-            ? (String) project.getProperties().get("environment") : "test";
+        final String environment = project.hasProperty("environment") ? (String) project.getProperties().get("environment") : "test";
         Config config = new Config(project, extension, environment);
         generateTemplateTask(config);
         packageTask(config);
-//        deployTask(config);
+        deployTask(config);
     }
 
     private void generateTemplateTask(Config config) {
@@ -65,17 +63,16 @@ public class AwsSamPlugin implements Plugin<Project> {
         project.task(taskParams, SAM_PACKAGE_TASK_NAME);
     }
 
-//    private void deployTask() {
-//        Object[] dependsOn = {SAM_PACKAGE_TASK_NAME};
-//        Object[] constructorArgs = {project};
-//        Map<String, Object> taskParams = new HashMap<>() {{
-//            put("type", DeployTask.class);
-//            put("group", "AWS SAM");
-//            put("description", "Deploys an AWS SAM application.");
-//            put("dependsOn", dependsOn);
-//            put("constructorArgs", constructorArgs);
-//        }};
-//
-//        project.task(taskParams, SAM_DEPLOY_TASK_NAME);
-//    }
+    private void deployTask(Config config) {
+        Object[] dependsOn = {SAM_PACKAGE_TASK_NAME};
+        Object[] constructorArgs = {config};
+        Map<String, Object> taskParams = new HashMap<String, Object>() {{
+            put("type", DeployTask.class);
+            put("group", "AWS SAM");
+            put("description", "Deploys an AWS SAM application.");
+            put("dependsOn", dependsOn);
+            put("constructorArgs", constructorArgs);
+        }};
+        project.task(taskParams, SAM_DEPLOY_TASK_NAME);
+    }
 }
