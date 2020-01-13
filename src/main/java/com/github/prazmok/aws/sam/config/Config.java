@@ -1,16 +1,14 @@
 package com.github.prazmok.aws.sam.config;
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
-import com.github.prazmok.aws.sam.AwsSamPlugin;
 import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
-import com.github.prazmok.aws.sam.task.GenerateTemplateTask;
 import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
-import org.gradle.api.internal.TaskOutputsInternal;
 
 import java.io.File;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class Config {
     private final Project project;
@@ -248,11 +246,11 @@ public class Config {
             tmpDir = project.getBuildDir();
         }
 
-        return new File(tmpDir + File.separator + "sam").getAbsoluteFile();
+        return tmpDir;
     }
 
     public File getSamTemplate() throws MissingConfigurationException {
-        return new File(getSamTemplatePath().getAbsoluteFile() + File.separator + getSamTemplateFile());
+        return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
     }
 
     public File getGeneratedSamTemplate() throws MissingConfigurationException {
@@ -261,19 +259,5 @@ public class Config {
 
     public File getOutputSamTemplate() throws MissingConfigurationException {
         return new File(getTmpDir() + File.separator + "packaged." + getSamTemplateFile());
-    }
-
-    public File getShadowJarFile() {
-        ShadowJar shadowJar = (ShadowJar) project.getTasks().findByName(ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME());
-        TaskOutputsInternal outputs = Objects.requireNonNull(shadowJar).getOutputs();
-
-        return outputs.getFiles().getSingleFile().getAbsoluteFile();
-    }
-
-    public File getGeneratedOutputSamTemplateFile() {
-        GenerateTemplateTask generateTemplateTask = (GenerateTemplateTask) project.getTasks().findByName(AwsSamPlugin.GENERATE_TEMPLATE_TASK_NAME);
-        TaskOutputsInternal outputs = Objects.requireNonNull(generateTemplateTask).getOutputs();
-
-        return outputs.getFiles().getSingleFile().getAbsoluteFile();
     }
 }

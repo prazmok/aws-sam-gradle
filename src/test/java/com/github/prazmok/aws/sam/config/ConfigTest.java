@@ -94,9 +94,9 @@ public class ConfigTest {
         assertTrue(config.confirmChangeset());
 
         assertEquals(new File("./src/test/template.yml"), config.getSamTemplate());
-        assertEquals(new File("/tmp/sam"), config.getTmpDir());
-        assertEquals(new File("/tmp/sam/generated.template.yml"), config.getGeneratedSamTemplate());
-        assertEquals(new File("/tmp/sam/packaged.template.yml"), config.getOutputSamTemplate());
+        assertEquals(new File("/tmp"), config.getTmpDir());
+        assertEquals(new File("/tmp/generated.template.yml"), config.getGeneratedSamTemplate());
+        assertEquals(new File("/tmp/packaged.template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
@@ -132,9 +132,9 @@ public class ConfigTest {
         assertFalse(config.confirmChangeset());
 
         assertEquals(new File("./src/test/resources/env_template.yml"), config.getSamTemplate());
-        assertEquals(new File("./src/test/resources/tmp/sam"), config.getTmpDir());
-        assertEquals(new File("./src/test/resources/tmp/sam/generated.env_template.yml"), config.getGeneratedSamTemplate());
-        assertEquals(new File("./src/test/resources/tmp/sam/packaged.env_template.yml"), config.getOutputSamTemplate());
+        assertEquals(new File("./src/test/resources/tmp"), config.getTmpDir());
+        assertEquals(new File("./src/test/resources/tmp/generated.env_template.yml"), config.getGeneratedSamTemplate());
+        assertEquals(new File("./src/test/resources/tmp/packaged.env_template.yml"), config.getOutputSamTemplate());
     }
 
     @Test

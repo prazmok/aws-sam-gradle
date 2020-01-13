@@ -4,10 +4,11 @@ import com.github.prazmok.aws.sam.AwsSamPlugin;
 import com.github.prazmok.aws.sam.config.AwsSamExtension;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.Environment;
-import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.TaskOutputsInternal;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 class PackageTaskTest {
@@ -35,17 +37,29 @@ class PackageTaskTest {
     }
 
     @Test
-    void buildCommand() throws MissingConfigurationException {
+    void buildCommand() throws Exception {
         Config config = new Config(project, getFullExtension(), "test");
         PackageTask task = (PackageTask) buildTask(config);
-        String expected = "sam package --force-upload --use-json --debug --template-file /tmp/sam/generated.template" +
-            ".yml --output-template-file /tmp/sam/packaged.template.yml --s3-bucket example-s3-bucket --s3-prefix " +
+        String expected = "sam package --force-upload --use-json --debug --template-file /tmp/generated.template" +
+            ".yml --output-template-file /tmp/packaged.template.yml --s3-bucket example-s3-bucket --s3-prefix " +
             "example-s3-prefix --profile default --region eu-west-1 --kms-key-id example-kms-key-id";
         assertEquals(expected, String.join(" ", task.buildCommand()));
     }
 
-    private Task buildTask(Config config) {
-        Object[] constructorArgs = {config, project.getLogger()};
+    private Task buildTask(Config config) throws Exception {
+        File templateFile = new File("/tmp/generated.template.yml");
+
+        if (!templateFile.exists()) {
+            assertTrue(templateFile.createNewFile(), "Assert file has been created");
+        }
+
+        FileCollection files = Mockito.mock(FileCollection.class);
+        when(files.getSingleFile()).thenReturn(templateFile);
+        TaskOutputsInternal outputs = Mockito.mock(TaskOutputsInternal.class);
+        when(outputs.getFiles()).thenReturn(files);
+        Task generateSamTemplate = Mockito.mock(GenerateTemplateTask.class);
+        when(generateSamTemplate.getOutputs()).thenReturn(outputs);
+        Object[] constructorArgs = {config, generateSamTemplate, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("constructorArgs", constructorArgs);

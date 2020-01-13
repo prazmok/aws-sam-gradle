@@ -26,7 +26,7 @@ public class PluginTest {
 //        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":generateSamTemplate")).getOutcome());
 //        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":packageSam")).getOutcome());
 //
-//        File file = new File(EXAMPLE_PROJECT_DIR + "/build/tmp/sam/generated.template.yml");
+//        File file = new File(EXAMPLE_PROJECT_DIR + "/build/tmp/generated.template.yml");
 //        assertTrue(file.exists());
     }
 
