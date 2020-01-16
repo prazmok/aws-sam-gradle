@@ -15,7 +15,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,8 +49,6 @@ class GenerateTemplateTaskTest {
         GenerateTemplateTask task = (GenerateTemplateTask) buildTask(config);
         task.generateTemplate();
 
-        TaskOutputsInternal outputs = Objects.requireNonNull(task).getOutputs();
-        assertEquals(generatedTemplate.getAbsoluteFile(), outputs.getFiles().getSingleFile());
         assertTrue(tmpDir.exists());
         assertTrue(generatedTemplate.exists());
 
@@ -79,6 +76,6 @@ class GenerateTemplateTaskTest {
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, AwsSamPlugin.GENERATE_TEMPLATE_TASK_NAME);
+        return project.task(taskParams, AwsSamPlugin.GENERATE_TEMPLATE_TASK_NAME + "Test");
     }
 }

@@ -2,26 +2,24 @@ package com.github.prazmok.aws.sam.task;
 
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.task.command.SamCommandBuilder;
-import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.Exec;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskOutputs;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class DeployTask extends Exec implements CommandBuilderAwareInterface {
     private final Config config;
-    private final Task packageSamTask;
     private final Logger logger;
     private final SamCommandBuilder samCommandBuilder = new SamCommandBuilder();
 
     @Inject
-    public DeployTask(Config config, Task packageSamTask, Logger logger) {
+    public DeployTask(Config config, Logger logger) {
         this.config = config;
-        this.packageSamTask = packageSamTask;
         this.logger = logger;
     }
 
@@ -62,14 +60,11 @@ public class DeployTask extends Exec implements CommandBuilderAwareInterface {
     }
 
     private String getOutputSamTemplate() throws Exception {
-        TaskOutputs outputs = Objects.requireNonNull(packageSamTask).getOutputs();
-        File packageSamFile = outputs.getFiles().getSingleFile();
-
-        if (!packageSamFile.exists()) {
-            throw new Exception("Couldn't find source SAM template file " + packageSamFile.getAbsolutePath() + "!");
+        if (!config.getOutputSamTemplate().exists()) {
+            throw new Exception("Couldn't find source SAM template file " + config.getOutputSamTemplate().getAbsolutePath() + "!");
         }
 
-        return packageSamFile.getAbsolutePath();
+        return config.getOutputSamTemplate().getAbsolutePath();
     }
 
     private String listToArgValue(List<String> input) {

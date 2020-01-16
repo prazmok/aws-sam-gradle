@@ -243,7 +243,7 @@ public class Config {
         } else if (extension.tmpDir != null) {
             tmpDir = extension.tmpDir;
         } else {
-            tmpDir = project.getBuildDir();
+            tmpDir = new File(project.getBuildDir() + File.separator + "tmp");
         }
 
         return tmpDir;

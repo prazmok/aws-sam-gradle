@@ -1,11 +1,9 @@
 package com.github.prazmok.aws.sam.task;
 
 import com.github.prazmok.aws.sam.config.Config;
-import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
 import org.gradle.api.logging.Logger;
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.TaskOutputs;
 
@@ -29,11 +27,6 @@ public class GenerateTemplateTask extends DefaultTask {
         this.logger = logger;
     }
 
-    @OutputFile
-    public File getGeneratedSamTemplate() throws MissingConfigurationException {
-        return config.getGeneratedSamTemplate().getAbsoluteFile();
-    }
-
     @TaskAction
     public void generateTemplate() throws Exception {
         File tmpDir = config.getTmpDir();
@@ -45,13 +38,13 @@ public class GenerateTemplateTask extends DefaultTask {
         Charset charset = StandardCharsets.UTF_8;
         String content = new String(Files.readAllBytes(config.getSamTemplate().toPath()));
         content = replaceCodeUriParam(content);
-        Files.write(getGeneratedSamTemplate().toPath(), content.getBytes(charset));
+        Files.write(config.getGeneratedSamTemplate().toPath(), content.getBytes(charset));
 
-        if (!getGeneratedSamTemplate().exists()) {
+        if (!config.getGeneratedSamTemplate().exists()) {
             throw new Exception("Couldn't generate source SAM template!");
         }
 
-        this.logger.lifecycle("Successfully generated SAM template: " + getGeneratedSamTemplate());
+        this.logger.lifecycle("Successfully generated SAM template: " + config.getGeneratedSamTemplate());
     }
 
     private String replaceCodeUriParam(String content) throws Exception {

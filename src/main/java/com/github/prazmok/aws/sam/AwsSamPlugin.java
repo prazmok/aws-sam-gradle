@@ -33,21 +33,17 @@ public class AwsSamPlugin implements Plugin<Project> {
             .getExtensions()
             .create(SAM_DEPLOY_EXTENSION, AwsSamExtension.class, envs);
         ((ExtensionAware) extension).getExtensions().add(SAM_DEPLOY_ENVIRONMENTS, envs);
-
-        if (!project.hasProperty("environment")) {
-            throw new IllegalStateException("Not specified environment!");
-        }
-
-        final String environment = (String) project.getProperties().get("environment");
+        final String environment = project.hasProperty("environment")
+            ? (String) project.getProperties().get("environment")
+            : "dev";
         final Config config = new Config(project, extension, environment);
-
-        generateTemplateTask(config);
+        Task shadowJarTask = project.getTasks().findByName(ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME());
+        generateTemplateTask(config, shadowJarTask);
         packageTask(config);
         deployTask(config);
     }
 
-    private Task generateTemplateTask(Config config) {
-        Task shadowJarTask = project.getTasks().findByName(ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME());
+    private void generateTemplateTask(Config config, Task shadowJarTask) {
         Object[] dependsOn = {"clean", "build", ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME()};
         Object[] constructorArgs = {config, shadowJarTask, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
@@ -58,12 +54,12 @@ public class AwsSamPlugin implements Plugin<Project> {
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, GENERATE_TEMPLATE_TASK_NAME);
+        project.task(taskParams, GENERATE_TEMPLATE_TASK_NAME);
     }
 
-    private Task packageTask(Config config) {
+    private void packageTask(Config config) {
         Object[] dependsOn = {GENERATE_TEMPLATE_TASK_NAME};
-        Object[] constructorArgs = {config, generateTemplateTask(config), project.getLogger()};
+        Object[] constructorArgs = {config, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("group", "AWS SAM");
@@ -72,13 +68,13 @@ public class AwsSamPlugin implements Plugin<Project> {
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, SAM_PACKAGE_TASK_NAME);
+        project.task(taskParams, SAM_PACKAGE_TASK_NAME);
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private Task deployTask(Config config) {
+    private void deployTask(Config config) {
         Object[] dependsOn = {SAM_PACKAGE_TASK_NAME};
-        Object[] constructorArgs = {config, packageTask(config), project.getLogger()};
+        Object[] constructorArgs = {config, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", DeployTask.class);
             put("group", "AWS SAM");
@@ -87,6 +83,6 @@ public class AwsSamPlugin implements Plugin<Project> {
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, SAM_DEPLOY_TASK_NAME);
+        project.task(taskParams, SAM_DEPLOY_TASK_NAME);
     }
 }

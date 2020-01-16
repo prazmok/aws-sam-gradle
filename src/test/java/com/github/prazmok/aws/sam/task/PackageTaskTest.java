@@ -7,8 +7,6 @@ import com.github.prazmok.aws.sam.config.Environment;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.TaskOutputsInternal;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,18 +51,13 @@ class PackageTaskTest {
             assertTrue(templateFile.createNewFile(), "Assert file has been created");
         }
 
-        FileCollection files = Mockito.mock(FileCollection.class);
-        when(files.getSingleFile()).thenReturn(templateFile);
-        TaskOutputsInternal outputs = Mockito.mock(TaskOutputsInternal.class);
-        when(outputs.getFiles()).thenReturn(files);
-        Task generateSamTemplate = Mockito.mock(GenerateTemplateTask.class);
-        when(generateSamTemplate.getOutputs()).thenReturn(outputs);
-        Object[] constructorArgs = {config, generateSamTemplate, project.getLogger()};
+        Object[] constructorArgs = {config, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("constructorArgs", constructorArgs);
         }};
-        return project.task(taskParams, AwsSamPlugin.SAM_PACKAGE_TASK_NAME);
+
+        return project.task(taskParams, AwsSamPlugin.SAM_PACKAGE_TASK_NAME + "Test");
     }
 
     private AwsSamExtension getFullExtension() {
