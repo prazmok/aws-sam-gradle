@@ -1,6 +1,5 @@
 package com.github.prazmok.aws.sam;
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin;
 import com.github.prazmok.aws.sam.config.AwsSamExtension;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.Environment;
@@ -14,7 +13,9 @@ import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class AwsSamPlugin implements Plugin<Project> {
     public static final String SAM_DEPLOY_EXTENSION = "deployment";
@@ -28,6 +29,30 @@ public class AwsSamPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         this.project = project;
+        this.project.getAllprojects().forEach((p) -> {
+            p.getPluginManager().apply("java");
+            p.getPluginManager().apply("com.github.johnrengelman.shadow");
+
+            Task clean = project.getTasks().getByName("clean");
+            Task build = project.getTasks().getByName("build");
+            Task shadow = project.getTasks().getByName("shadowJar");
+
+            Set<Object> currentDeps = shadow.getDependsOn();
+            Set<Object> dependsOn = new HashSet<Object>() {{
+                addAll(currentDeps);
+
+                if (!currentDeps.contains(clean)) {
+                    add(clean);
+                }
+
+                if (!currentDeps.contains(build)) {
+                    add(build);
+                }
+            }};
+
+            shadow.setDependsOn(dependsOn);
+        });
+
         final NamedDomainObjectContainer<Environment> envs = project.container(Environment.class);
         final AwsSamExtension extension = project
             .getExtensions()
@@ -36,15 +61,17 @@ public class AwsSamPlugin implements Plugin<Project> {
         final String environment = project.hasProperty("environment")
             ? (String) project.getProperties().get("environment")
             : "dev";
+
         final Config config = new Config(project, extension, environment);
-        Task shadowJarTask = project.getTasks().findByName(ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME());
+        Task shadowJarTask = project.getTasks().getByName("shadowJar");
+
         generateTemplateTask(config, shadowJarTask);
         packageTask(config);
         deployTask(config);
     }
 
     private void generateTemplateTask(Config config, Task shadowJarTask) {
-        Object[] dependsOn = {"clean", "build", ShadowJavaPlugin.getSHADOW_JAR_TASK_NAME()};
+        Object[] dependsOn = {shadowJarTask};
         Object[] constructorArgs = {config, shadowJarTask, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", GenerateTemplateTask.class);

@@ -1,12 +1,11 @@
 buildscript {
-    dependencies {
-        classpath files('../build/classes/java/main')
+    repositories {
+        jcenter()
     }
-}
 
-plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    dependencies {
+        classpath("com.github.prazmok:aws-sam-gradle-plugin")
+    }
 }
 
 apply plugin: com.github.prazmok.aws.sam.AwsSamPlugin
@@ -16,9 +15,6 @@ repositories {
 }
 
 version = '0.0.1'
-
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
 
 deployment {
     samTemplateFile = "template.yml"
