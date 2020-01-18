@@ -30,7 +30,7 @@ test {
 gradlePlugin {
     plugins {
         AwsSamPlugin {
-            id = 'aws.sam'
+            id = 'com.github.prazmok.aws.sam'
             implementationClass = 'com.github.prazmok.aws.sam.AwsSamPlugin'
         }
     }
