@@ -33,9 +33,9 @@ public class AwsSamPlugin implements Plugin<Project> {
             p.getPluginManager().apply("java");
             p.getPluginManager().apply("com.github.johnrengelman.shadow");
 
-            Task clean = project.getTasks().getByName("clean");
-            Task build = project.getTasks().getByName("build");
-            Task shadow = project.getTasks().getByName("shadowJar");
+            Task clean = p.getTasks().getByName("clean");
+            Task build = p.getTasks().getByName("build");
+            Task shadow = p.getTasks().getByName("shadowJar");
 
             Set<Object> currentDeps = shadow.getDependsOn();
             Set<Object> dependsOn = new HashSet<Object>() {{
