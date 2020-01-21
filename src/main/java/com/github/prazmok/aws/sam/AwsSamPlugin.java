@@ -13,9 +13,7 @@ import org.gradle.api.Task;
 import org.gradle.api.plugins.ExtensionAware;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class AwsSamPlugin implements Plugin<Project> {
     public static final String SAM_DEPLOY_EXTENSION = "deployment";
@@ -32,25 +30,6 @@ public class AwsSamPlugin implements Plugin<Project> {
         this.project.getAllprojects().forEach((p) -> {
             p.getPluginManager().apply("java");
             p.getPluginManager().apply("com.github.johnrengelman.shadow");
-
-            Task clean = p.getTasks().getByName("clean");
-            Task build = p.getTasks().getByName("build");
-            Task shadow = p.getTasks().getByName("shadowJar");
-
-            Set<Object> currentDeps = shadow.getDependsOn();
-            Set<Object> dependsOn = new HashSet<Object>() {{
-                addAll(currentDeps);
-
-                if (!currentDeps.contains(clean)) {
-                    add(clean);
-                }
-
-                if (!currentDeps.contains(build)) {
-                    add(build);
-                }
-            }};
-
-            shadow.setDependsOn(dependsOn);
         });
 
         final NamedDomainObjectContainer<Environment> envs = project.container(Environment.class);
@@ -64,6 +43,7 @@ public class AwsSamPlugin implements Plugin<Project> {
 
         final Config config = new Config(project, extension, environment);
         Task shadowJarTask = project.getTasks().getByName("shadowJar");
+        shadowJarTask.dependsOn("clean");
 
         generateTemplateTask(config, shadowJarTask);
         packageTask(config);

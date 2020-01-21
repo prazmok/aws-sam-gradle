@@ -14,7 +14,7 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PluginTest {
+public class AwsSamPluginTest {
     private static final String ENV = "test";
     private static final File EXAMPLE_PROJECT_DIR = new File("example");
 
@@ -23,7 +23,7 @@ public class PluginTest {
     @Test
     public void testGenerateSamTemplate() {
         gradleExecute(EXAMPLE_PROJECT_DIR, "generateSamTemplate");
-        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":build")).getOutcome());
+
         assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":shadowJar")).getOutcome());
         assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":generateSamTemplate")).getOutcome());
 
