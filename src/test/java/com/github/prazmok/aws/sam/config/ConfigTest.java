@@ -95,7 +95,6 @@ public class ConfigTest {
 
         assertEquals(new File("./src/test/template.yml"), config.getSamTemplate());
         assertEquals(new File("/tmp"), config.getTmpDir());
-        assertEquals(new File("/tmp/generated.template.yml"), config.getGeneratedSamTemplate());
         assertEquals(new File("/tmp/packaged.template.yml"), config.getOutputSamTemplate());
     }
 
@@ -133,7 +132,6 @@ public class ConfigTest {
 
         assertEquals(new File("./src/test/resources/env_template.yml"), config.getSamTemplate());
         assertEquals(new File("./src/test/resources/tmp"), config.getTmpDir());
-        assertEquals(new File("./src/test/resources/tmp/generated.env_template.yml"), config.getGeneratedSamTemplate());
         assertEquals(new File("./src/test/resources/tmp/packaged.env_template.yml"), config.getOutputSamTemplate());
     }
 

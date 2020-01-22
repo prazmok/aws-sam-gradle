@@ -253,10 +253,6 @@ public class Config {
         return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
     }
 
-    public File getGeneratedSamTemplate() throws MissingConfigurationException {
-        return new File(getTmpDir() + File.separator + "generated." + getSamTemplateFile());
-    }
-
     public File getOutputSamTemplate() throws MissingConfigurationException {
         return new File(getTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }

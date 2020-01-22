@@ -17,7 +17,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       Handler: "com.prazmok.JavaHandler::handle"
-      CodeUri: ${CodeUri}
+      CodeUri: "./build/libs/aws-sam-gradle-example-all.jar"
 
 Outputs:
   JavaLambdaFunction:

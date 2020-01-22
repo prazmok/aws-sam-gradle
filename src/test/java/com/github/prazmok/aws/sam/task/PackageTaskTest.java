@@ -38,26 +38,20 @@ class PackageTaskTest {
     void buildCommand() throws Exception {
         Config config = new Config(project, getFullExtension(), "test");
         PackageTask task = (PackageTask) buildTask(config);
-        String expected = "sam package --force-upload --use-json --debug --template-file /tmp/generated.template" +
-            ".yml --output-template-file /tmp/packaged.template.yml --s3-bucket example-s3-bucket --s3-prefix " +
+        String expected = "sam package --force-upload --use-json --debug --template-file /tmp/template.yml " +
+            "--output-template-file /tmp/packaged.template.yml --s3-bucket example-s3-bucket --s3-prefix " +
             "example-s3-prefix --profile default --region eu-west-1 --kms-key-id example-kms-key-id";
         assertEquals(expected, String.join(" ", task.buildCommand()));
     }
 
-    private Task buildTask(Config config) throws Exception {
-        File templateFile = new File("/tmp/generated.template.yml");
-
-        if (!templateFile.exists()) {
-            assertTrue(templateFile.createNewFile(), "Assert file has been created");
-        }
-
+    private Task buildTask(Config config) {
         Object[] constructorArgs = {config, project.getLogger()};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("constructorArgs", constructorArgs);
         }};
 
-        return project.task(taskParams, AwsSamPlugin.SAM_PACKAGE_TASK_NAME + "Test");
+        return project.task(taskParams, AwsSamPlugin.PACKAGE_TASK + "Test");
     }
 
     private AwsSamExtension getFullExtension() {

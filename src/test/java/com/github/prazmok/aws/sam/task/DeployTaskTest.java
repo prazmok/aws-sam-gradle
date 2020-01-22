@@ -61,7 +61,7 @@ class DeployTaskTest {
             put("type", DeployTask.class);
             put("constructorArgs", constructorArgs);
         }};
-        return project.task(taskParams, AwsSamPlugin.SAM_DEPLOY_TASK_NAME + "Test");
+        return project.task(taskParams, AwsSamPlugin.DEPLOY_TASK + "Test");
     }
 
     private AwsSamExtension getFullExtension() {

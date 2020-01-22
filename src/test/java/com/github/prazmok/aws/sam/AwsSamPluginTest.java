@@ -12,7 +12,6 @@ import java.util.Objects;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AwsSamPluginTest {
     private static final String ENV = "test";
@@ -22,31 +21,20 @@ public class AwsSamPluginTest {
 
     @Test
     public void testGenerateSamTemplate() {
-        gradleExecute(EXAMPLE_PROJECT_DIR, "generateSamTemplate");
+        gradleExecute("packageSam");
 
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":clean")).getOutcome());
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":build")).getOutcome());
         assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":shadowJar")).getOutcome());
-        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":generateSamTemplate")).getOutcome());
-
-        File generatedTemplateFile = new File(EXAMPLE_PROJECT_DIR + "/build/tmp/generated.template.yml");
-        assertTrue(generatedTemplateFile.exists());
+        assertEquals(TaskOutcome.SUCCESS, Objects.requireNonNull(buildResult.task(":packageSam")).getOutcome());
     }
 
-    @Test
-    public void testPackageSam() {
-        // todo
-    }
-
-    @Test
-    public void testDeploySam() {
-        // todo
-    }
-
-    private void gradleExecute(File projectDir, String... arguments) {
+    private void gradleExecute(String... arguments) {
         final List<String> argsList = new ArrayList<>();
         argsList.addAll(asList(arguments));
-        argsList.addAll(asList("-Penvironment=" + ENV, "--info", "--stacktrace", "--max-workers", "1"));
+        argsList.addAll(asList("-Penvironment=" + ENV, "--stacktrace"));
 
-        buildResult = GradleRunner.create().withProjectDir(projectDir.getAbsoluteFile())
+        buildResult = GradleRunner.create().withProjectDir(AwsSamPluginTest.EXAMPLE_PROJECT_DIR.getAbsoluteFile())
             .withPluginClasspath()
             .withArguments(argsList)
             .forwardOutput()

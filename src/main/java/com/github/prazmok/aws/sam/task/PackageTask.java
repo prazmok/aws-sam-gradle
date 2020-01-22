@@ -31,7 +31,7 @@ public class PackageTask extends Exec implements CommandBuilderAwareInterface {
                 throw new Exception("Couldn't generate output SAM template!");
             }
 
-            logger.lifecycle("Successfully generated output SAM template: " + config.getOutputSamTemplate().getAbsolutePath());
+            logger.lifecycle("Successfully created output SAM template: " + config.getOutputSamTemplate().getAbsolutePath());
         } catch (Exception e) {
             logger.error(e.toString());
         }
@@ -42,7 +42,7 @@ public class PackageTask extends Exec implements CommandBuilderAwareInterface {
             .option("--force-upload", config.forceUpload())
             .option("--use-json", config.useJson())
             .option("--debug", config.debug())
-            .argument("--template-file", getGeneratedSamTemplate())
+            .argument("--template-file", config.getSamTemplate())
             .argument("--output-template-file", config.getOutputSamTemplate())
             .argument("--s3-bucket", config.getS3Bucket())
             .argument("--s3-prefix", config.getS3Prefix())
@@ -51,13 +51,5 @@ public class PackageTask extends Exec implements CommandBuilderAwareInterface {
             .argument("--kms-key-id", config.getKmsKeyId());
 
         return samCommandBuilder.build();
-    }
-
-    private String getGeneratedSamTemplate() throws Exception {
-        if (!config.getGeneratedSamTemplate().exists()) {
-            throw new Exception("Couldn't find generated SAM template file " + config.getGeneratedSamTemplate().getAbsolutePath() + "!");
-        }
-
-        return config.getGeneratedSamTemplate().getAbsolutePath();
     }
 }
