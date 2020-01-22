@@ -57,7 +57,7 @@ public class AwsSamPlugin implements Plugin<Project> {
 
     private void packageTask(Config config) {
         Object[] dependsOn = {"clean", "build"};
-        Object[] constructorArgs = {config, project.getLogger()};
+        Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("group", "AWS SAM");
@@ -72,7 +72,7 @@ public class AwsSamPlugin implements Plugin<Project> {
     @SuppressWarnings("UnusedReturnValue")
     private void deployTask(Config config) {
         Object[] dependsOn = {PACKAGE_TASK};
-        Object[] constructorArgs = {config, project.getLogger()};
+        Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", DeployTask.class);
             put("group", "AWS SAM");

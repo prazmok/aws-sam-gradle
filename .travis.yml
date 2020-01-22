@@ -24,17 +24,3 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
-
-#before_install:
-#  - python --version
-#  - pip --version
-#  - sudo pip install --upgrade awscli
-#  - aws --version
-#  - sudo pip install --upgrade aws-sam-cli
-#  - sam --version
-
-#jobs:
-#  include:
-#    - stage: Run tests
-#      script:
-#        - ./gradlew assemble --info

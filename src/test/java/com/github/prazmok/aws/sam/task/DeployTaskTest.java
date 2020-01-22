@@ -56,7 +56,7 @@ class DeployTaskTest {
             assertTrue(templateFile.createNewFile(), "Assert file has been created");
         }
 
-        Object[] constructorArgs = {config, project.getLogger()};
+        Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", DeployTask.class);
             put("constructorArgs", constructorArgs);

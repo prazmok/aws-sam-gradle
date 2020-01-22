@@ -45,7 +45,7 @@ class PackageTaskTest {
     }
 
     private Task buildTask(Config config) {
-        Object[] constructorArgs = {config, project.getLogger()};
+        Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("constructorArgs", constructorArgs);
