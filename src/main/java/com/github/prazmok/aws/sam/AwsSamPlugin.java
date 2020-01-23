@@ -47,7 +47,7 @@ public class AwsSamPlugin implements Plugin<Project> {
         ((ExtensionAware) extension).getExtensions().add(EXT_ENVIRONMENTS, envs);
         final String environment = project.hasProperty("environment")
             ? (String) project.getProperties().get("environment")
-            : "dev";
+            : "unspecified-environment";
 
         final Config config = new Config(project, extension, environment);
 

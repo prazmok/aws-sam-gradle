@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.github.prazmok'
-version = '0.0.5'
+version = '0.0.6'
 
 repositories {
     jcenter()
@@ -39,8 +39,8 @@ gradlePlugin {
 pluginBundle {
     website = 'https://github.com/prazmok/aws-sam-gradle'
     vcsUrl = 'https://github.com/prazmok/aws-sam-gradle.git'
-    description = 'Gradle plugin for deploying AWS Serverless Application Models using CloudFormation'
-    tags = ['sam', 'aws', 'serverless', 'lambda']
+    description = 'AWS SAM Gradle plugin easier deployment and development of AWS Lambdas'
+    tags = ['aws', 'sam', 'aws-sam', 'serverless', 'lambda']
 
     plugins {
         AwsSamPlugin {

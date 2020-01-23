@@ -222,7 +222,9 @@ public class Config {
             return extension.capabilities;
         }
 
-        return new LinkedList<>();
+        return new LinkedList<String>() {{
+            add("CAPABILITY_IAM");
+        }};
     }
 
     public List<String> getNotificationArns() {

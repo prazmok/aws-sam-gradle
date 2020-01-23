@@ -39,6 +39,7 @@ public class ConfigTest {
         assertEquals(new LinkedHashMap<>(), config.getParameterOverrides());
         assertEquals(new LinkedList<>(), config.getTags());
         assertEquals(new LinkedList<>(), config.getNotificationArns());
+        assertEquals(new LinkedList<String>() {{ add("CAPABILITY_IAM"); }}, config.getCapabilities());
 
         assertNull(config.getAwsProfile());
         assertNull(config.getKmsKeyId());
