@@ -8,6 +8,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
                 .option("--no-fail-on-empty-changeset", config.noFailOnEmptyChangeset())
                 .option("--confirm-changeset", config.confirmChangeset())
                 .option("--debug", config.debug())
-                .argument("--template-file", getOutputSamTemplate())
+                .argument("--template-file", getSamPackagedTemplate())
                 .argument("--stack-name", config.getStackName())
                 .argument("--s3-bucket", config.getS3Bucket())
                 .argument("--s3-prefix", config.getS3Prefix())
@@ -65,12 +66,14 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
         return errorCodeCommand(1);
     }
 
-    private String getOutputSamTemplate() throws Exception {
-        if (!config.getOutputSamTemplate().exists()) {
-            throw new Exception("Couldn't find source SAM template file " + config.getOutputSamTemplate().getAbsolutePath() + "!");
+    private String getSamPackagedTemplate() throws Exception {
+        File packaged = config.getPackagedTemplate();
+
+        if (!packaged.exists() || !packaged.isFile()) {
+            throw new Exception("Couldn't find packaged SAM template file " + packaged.getAbsolutePath() + "!");
         }
 
-        return config.getOutputSamTemplate().getAbsolutePath();
+        return packaged.getAbsolutePath();
     }
 
     private String listToArgValue(List<String> input) {

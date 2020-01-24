@@ -8,40 +8,50 @@ import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.testfixtures.ProjectBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 class DeployTaskTest {
     private Project project;
     private NamedDomainObjectContainer<Environment> envs;
+    private File samTemplate = new File("/tmp/packaged.yml");
 
     @SuppressWarnings("unchecked")
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        if (!samTemplate.exists() || !samTemplate.isFile()) {
+            assertTrue(samTemplate.createNewFile(), "Assert create temporary SAM template file");
+        }
         project = ProjectBuilder.builder()
-            .withProjectDir(new File("/tmp"))
+            .withProjectDir(samTemplate.getParentFile())
             .build();
         envs = Mockito.mock(NamedDomainObjectContainer.class);
         when(envs.getByName("test")).thenReturn(new Environment("test"));
     }
 
+    @AfterEach
+    void tearDown() {
+        samTemplate.deleteOnExit();
+    }
+
     @Test
-    void buildCommand() throws Exception {
+    void testBuildCommand() throws Exception {
         Config config = new Config(project, getFullExtension(), "test");
         DeployTask task = (DeployTask) buildTask(config);
         String expected = "sam deploy --force-upload --use-json --fail-on-empty-changeset --confirm-changeset --debug" +
-            " --template-file /tmp/packaged.template.yml --stack-name example-cloud-formation-stack --s3-bucket " +
+            " --template-file /tmp/packaged.yml --stack-name example-cloud-formation-stack --s3-bucket " +
             "example-s3-bucket --s3-prefix example-s3-prefix --profile default --region eu-west-1 --kms-key-id " +
             "example-kms-key-id --capabilities CAPABILITY_IAM,CAPABILITY_NAMED_IAM --notification-arns " +
             "example-notification-arn1,example-notification-arn2 --tags example-tag1,example-tag2,example-tag3 " +
@@ -49,13 +59,7 @@ class DeployTaskTest {
         assertEquals(expected, String.join(" ", task.buildCommand()));
     }
 
-    private Task buildTask(Config config) throws Exception {
-        File templateFile = new File("/tmp/packaged.template.yml");
-
-        if (!templateFile.exists()) {
-            assertTrue(templateFile.createNewFile(), "Assert file has been created");
-        }
-
+    private Task buildTask(Config config) {
         Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", DeployTask.class);
@@ -66,9 +70,7 @@ class DeployTaskTest {
 
     private AwsSamExtension getFullExtension() {
         AwsSamExtension extension = new AwsSamExtension(envs);
-        extension.tmpDir = new File("/tmp");
-        extension.samTemplatePath = new File("/tmp");
-        extension.samTemplateFile = "template.yml";
+        extension.samTemplate = samTemplate;
         extension.awsRegion = "eu-west-1";
         extension.awsProfile = "default";
         extension.kmsKeyId = "example-kms-key-id";

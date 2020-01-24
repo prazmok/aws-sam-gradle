@@ -9,6 +9,8 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedHashSet;
 
 public class PackageTask extends DefaultTask implements CommandBuilderAwareInterface {
@@ -28,11 +30,11 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
         });
 
         if (result.getExitValue() == 0) {
-            if (!config.getOutputSamTemplate().exists()) {
+            if (!config.getPackagedTemplate().exists()) {
                 throw new Exception("Couldn't generate output SAM template!");
             }
 
-            logger.lifecycle("Successfully created output SAM template: " + config.getOutputSamTemplate().getPath());
+            logger.lifecycle("Successfully created output SAM template: " + config.getPackagedTemplate().getPath());
         }
 
         result.rethrowFailure();
@@ -44,8 +46,8 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
                 .option("--force-upload", config.forceUpload())
                 .option("--use-json", config.useJson())
                 .option("--debug", config.debug())
-                .argument("--template-file", config.getSamTemplate())
-                .argument("--output-template-file", config.getOutputSamTemplate())
+                .argument("--template-file", getSamTemplatePath())
+                .argument("--output-template-file", getSamPackagedTemplate())
                 .argument("--s3-bucket", config.getS3Bucket())
                 .argument("--s3-prefix", config.getS3Prefix())
                 .argument("--profile", config.getAwsProfile())
@@ -53,10 +55,32 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
                 .argument("--kms-key-id", config.getKmsKeyId());
 
             return samCommandBuilder.build();
-        } catch (MissingConfigurationException e) {
+        } catch (MissingConfigurationException | FileNotFoundException e) {
             logger.error(e.toString());
         }
 
         return errorCodeCommand(1);
+    }
+
+    private String getSamTemplatePath() throws FileNotFoundException {
+        File template = config.getSamTemplate();
+
+        if (!template.exists() || !template.isFile()) {
+            throw new FileNotFoundException("AWS SAM template couldn't been found under "
+                + template.getAbsolutePath() + " location!");
+        }
+
+        return template.getAbsolutePath();
+    }
+
+    private String getSamPackagedTemplate() throws FileNotFoundException {
+        File packaged = config.getPackagedTemplate();
+
+        if (!packaged.getParentFile().exists() || !packaged.getParentFile().isDirectory()) {
+            throw new FileNotFoundException("Provided packaged template directory ("
+                + packaged.getParentFile().getAbsolutePath() + ") is invalid!");
+        }
+
+        return packaged.getAbsolutePath();
     }
 }

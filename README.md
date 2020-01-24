@@ -8,5 +8,5 @@
 Under the hood plugin uses AWS SAM CLI so make sure you have installed:
 
 * AWS CLI 
-* AWS SAM CLI (v0.30.0 or greater)
+* AWS SAM CLI
 * Docker

@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 abstract class ConfigProperties {
-    public File tmpDir;
-    public File samTemplatePath;
-    public String samTemplateFile;
+    public File samTemplate;
+    public File samPackagedTemplate;
     public String awsRegion;
     public String awsProfile;
     public String kmsKeyId;

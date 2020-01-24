@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,13 +36,15 @@ public class ConfigTest {
         Config config = new Config(project, extension, "test");
 
         assertEquals("test", config.getEnvironment().name);
-        assertEquals(new File("./"), config.getSamTemplatePath());
+        assertEquals(new File("./template.yml"), config.getSamTemplate());
+        assertEquals(new File("./packaged.yml"), config.getPackagedTemplate());
         assertEquals(new LinkedHashMap<>(), config.getParameterOverrides());
         assertEquals(new LinkedList<>(), config.getTags());
         assertEquals(new LinkedList<>(), config.getNotificationArns());
         assertEquals(new LinkedList<String>() {{ add("CAPABILITY_IAM"); }}, config.getCapabilities());
 
         assertNull(config.getAwsProfile());
+        assertNull(config.getS3Prefix());
         assertNull(config.getKmsKeyId());
         assertNull(config.getRoleArn());
 
@@ -55,20 +58,18 @@ public class ConfigTest {
         assertFalse(config.confirmChangeset());
 
         // Assert exceptions when missing required configuration properties
-        assertThrows(MissingConfigurationException.class, config::getSamTemplateFile);
         assertThrows(MissingConfigurationException.class, config::getAwsRegion);
         assertThrows(MissingConfigurationException.class, config::getS3Bucket);
-        assertThrows(MissingConfigurationException.class, config::getS3Prefix);
         assertThrows(MissingConfigurationException.class, config::getStackName);
     }
 
     @Test
-    public void testExtensionConfig() throws MissingConfigurationException {
+    public void testDefaultConfig() throws MissingConfigurationException {
         when(envs.getByName("test")).thenReturn(new Environment("test"));
-        Config config = new Config(project, getBaseExtension(), "test");
+        Config config = new Config(project, getBaseProperties(), "test");
 
-        assertEquals(new File("./src/test"), config.getSamTemplatePath());
-        assertEquals("template.yml", config.getSamTemplateFile());
+        assertEquals(new File("./src/test/resources/template.yml"), config.getSamTemplate());
+        assertEquals(new File("./src/test/resources/packaged.yml"), config.getPackagedTemplate());
         assertEquals("eu-west-1", config.getAwsRegion());
         assertEquals("default", config.getAwsProfile());
         assertEquals("kms-key-id", config.getKmsKeyId());
@@ -93,34 +94,30 @@ public class ConfigTest {
         assertTrue(config.noExecuteChangeset());
         assertTrue(config.noFailOnEmptyChangeset());
         assertTrue(config.confirmChangeset());
-
-        assertEquals(new File("./src/test/template.yml"), config.getSamTemplate());
-        assertEquals(new File("/tmp"), config.getTmpDir());
-        assertEquals(new File("/tmp/packaged.template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
     public void testExtendedEnvironmentConfig() throws MissingConfigurationException {
-        when(envs.getByName("test")).thenReturn(getReachEnvironment());
-        Config config = new Config(project, getBaseExtension(), "test");
+        when(envs.getByName("test")).thenReturn(getExtendedProperties());
+        Config config = new Config(project, getBaseProperties(), "test");
 
-        assertEquals(config.getSamTemplatePath(), new File("./src/test/resources"));
-        assertEquals(config.getSamTemplateFile(), "env_template.yml");
-        assertEquals(config.getAwsRegion(), "env_eu-west-1");
-        assertEquals(config.getAwsProfile(), "env_default");
-        assertEquals(config.getKmsKeyId(), "env_kms-key-id");
-        assertEquals(config.getS3Bucket(), "env_bucket-name");
-        assertEquals(config.getS3Prefix(), "env_bucket-prefix");
-        assertEquals(config.getStackName(), "env_cf-stack-name");
-        assertEquals(config.getRoleArn(), "env_role-arn");
+        assertEquals(new File("./src/test/resources/extended_template.yml"), config.getSamTemplate());
+        assertEquals(new File("./src/test/extended_packaged.yml"), config.getPackagedTemplate());
+        assertEquals("env_eu-west-1", config.getAwsRegion());
+        assertEquals("env_default", config.getAwsProfile());
+        assertEquals("env_kms-key-id", config.getKmsKeyId());
+        assertEquals("env_bucket-name", config.getS3Bucket());
+        assertEquals("env_bucket-prefix", config.getS3Prefix());
+        assertEquals("env_cf-stack-name", config.getStackName());
+        assertEquals("env_role-arn", config.getRoleArn());
         assertEquals(1, config.getCapabilities().size());
         assertEquals("CAPABILITY_NAMED_IAM", config.getCapabilities().get(0));
-        assertEquals(config.getTags().size(), 1);
-        assertEquals(config.getTags().get(0), "EXTENDED_ENV_TAG");
-        assertEquals(config.getNotificationArns().size(), 1);
-        assertEquals(config.getNotificationArns().get(0), "ExtendedEnvNotificationArn");
-        assertEquals(config.getParameterOverrides().size(), 1);
-        assertEquals(config.getParameterOverrides().get("SomeExtendedEnvParam"), "ExtendedEnvParamValue");
+        assertEquals(1, config.getTags().size());
+        assertEquals("EXTENDED_ENV_TAG", config.getTags().get(0));
+        assertEquals(1, config.getNotificationArns().size());
+        assertEquals("ExtendedEnvNotificationArn", config.getNotificationArns().get(0));
+        assertEquals(1, config.getParameterOverrides().size());
+        assertEquals("ExtendedEnvParamValue", config.getParameterOverrides().get("SomeExtendedEnvParam"));
 
         assertTrue(config.forceUpload());
         assertTrue(config.failOnEmptyChangeset());
@@ -130,10 +127,6 @@ public class ConfigTest {
         assertFalse(config.noExecuteChangeset());
         assertFalse(config.noFailOnEmptyChangeset());
         assertFalse(config.confirmChangeset());
-
-        assertEquals(new File("./src/test/resources/env_template.yml"), config.getSamTemplate());
-        assertEquals(new File("./src/test/resources/tmp"), config.getTmpDir());
-        assertEquals(new File("./src/test/resources/tmp/packaged.env_template.yml"), config.getOutputSamTemplate());
     }
 
     @Test
@@ -149,11 +142,10 @@ public class ConfigTest {
         assertFalse(config.noFailOnEmptyChangeset()); // always false when failOnEmptyChangeset = true
     }
 
-    private AwsSamExtension getBaseExtension() {
+    private AwsSamExtension getBaseProperties() {
         AwsSamExtension extension = new AwsSamExtension(envs);
-        extension.tmpDir = new File("/tmp");
-        extension.samTemplatePath = new File("./src/test");
-        extension.samTemplateFile = "template.yml";
+        extension.samTemplate = new File("./src/test/resources/template.yml");
+        extension.samPackagedTemplate = new File("./src/test/resources/packaged.yml");
         extension.awsRegion = "eu-west-1";
         extension.awsProfile = "default";
         extension.kmsKeyId = "kms-key-id";
@@ -177,11 +169,10 @@ public class ConfigTest {
         return extension;
     }
 
-    private Environment getReachEnvironment() {
+    private Environment getExtendedProperties() {
         Environment env = new Environment("test");
-        env.tmpDir = new File("./src/test/resources/tmp");
-        env.samTemplatePath = new File("./src/test/resources");
-        env.samTemplateFile = "env_template.yml";
+        env.samTemplate = new File("./src/test/resources/extended_template.yml");
+        env.samPackagedTemplate = new File("./src/test/extended_packaged.yml");
         env.awsRegion = "env_eu-west-1";
         env.awsProfile = "env_default";
         env.kmsKeyId = "env_kms-key-id";

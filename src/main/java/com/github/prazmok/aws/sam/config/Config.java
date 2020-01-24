@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,24 +34,32 @@ public class Config {
         return env;
     }
 
-    public File getSamTemplatePath() {
-        if (getEnvironment().samTemplatePath != null) {
-            return getEnvironment().samTemplatePath;
-        } else if (extension.samTemplatePath != null) {
-            return extension.samTemplatePath;
+    public File getSamTemplate() {
+        File template;
+
+        if (getEnvironment().samTemplate != null) {
+            template = getEnvironment().samTemplate;
+        } else if (extension.samTemplate != null) {
+            template = extension.samTemplate;
+        } else {
+            template = new File(project.getRootDir() + File.separator + "template.yml");
         }
 
-        return project.getRootDir();
+        return template;
     }
 
-    public String getSamTemplateFile() throws MissingConfigurationException {
-        if (getEnvironment().samTemplateFile != null) {
-            return getEnvironment().samTemplateFile;
-        } else if (extension.samTemplateFile != null) {
-            return extension.samTemplateFile;
+    public File getPackagedTemplate() {
+        File packaged;
+
+        if (getEnvironment().samPackagedTemplate != null) {
+            packaged = getEnvironment().samPackagedTemplate;
+        } else if (extension.samPackagedTemplate != null) {
+            packaged = extension.samPackagedTemplate;
+        } else {
+            packaged = new File(getSamTemplate().getParentFile() + File.separator + "packaged.yml");
         }
 
-        throw new MissingConfigurationException("samTemplateFile");
+        return packaged;
     }
 
     public String getAwsRegion() throws MissingConfigurationException {
@@ -93,14 +102,14 @@ public class Config {
         throw new MissingConfigurationException("s3Bucket");
     }
 
-    public String getS3Prefix() throws MissingConfigurationException {
+    public String getS3Prefix() {
         if (getEnvironment().s3Prefix != null) {
             return getEnvironment().s3Prefix;
         } else if (extension.s3Prefix != null) {
             return extension.s3Prefix;
         }
 
-        throw new MissingConfigurationException("s3Prefix");
+        return null;
     }
 
     public String getStackName() throws MissingConfigurationException {
@@ -235,27 +244,5 @@ public class Config {
         }
 
         return new LinkedList<>();
-    }
-
-    public File getTmpDir() {
-        File tmpDir;
-
-        if (getEnvironment().tmpDir != null) {
-            tmpDir = getEnvironment().tmpDir;
-        } else if (extension.tmpDir != null) {
-            tmpDir = extension.tmpDir;
-        } else {
-            tmpDir = new File(project.getBuildDir() + File.separator + "tmp");
-        }
-
-        return tmpDir;
-    }
-
-    public File getSamTemplate() throws MissingConfigurationException {
-        return new File(getSamTemplatePath() + File.separator + getSamTemplateFile());
-    }
-
-    public File getOutputSamTemplate() throws MissingConfigurationException {
-        return new File(getTmpDir() + File.separator + "packaged." + getSamTemplateFile());
     }
 }

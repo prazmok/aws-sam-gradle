@@ -21,7 +21,8 @@ dependencies {
 version = '0.0.1'
 
 deployment {
-    samTemplateFile = "template.yml"
+    samTemplate = new File("./template.yml")
+    samPackagedTemplate = new File("./packaged.yml")
     awsRegion = "eu-west-1"
     awsProfile = "default"
     kmsKeyId = "example-kms-key-id"
