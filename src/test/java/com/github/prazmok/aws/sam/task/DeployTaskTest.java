@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,7 +39,7 @@ class DeployTaskTest {
             .withProjectDir(samTemplate.getParentFile())
             .build();
         envs = Mockito.mock(NamedDomainObjectContainer.class);
-        when(envs.getByName("test")).thenReturn(new Environment("test"));
+        when(envs.getByName("default")).thenReturn(new Environment("default"));
     }
 
     @AfterEach
@@ -47,8 +48,19 @@ class DeployTaskTest {
     }
 
     @Test
-    void testBuildCommand() throws Exception {
-        Config config = new Config(project, getFullExtension(), "test");
+    void testNotExistingTemplateFile() {
+        AwsSamExtension extension = new AwsSamExtension(envs);
+        extension.samTemplate = new File("/non/existing/sam/packaged.yml");
+        Config config = new Config(project, extension);
+        DeployTask task = (DeployTask) buildTask(config);
+        assertThrows(FileNotFoundException.class, task::getSamPackagedTemplate);
+        extension.samTemplate = new File("/wrong/path/to/directory");
+        assertThrows(FileNotFoundException.class, task::getSamPackagedTemplate);
+    }
+
+    @Test
+    void testBuildCommand() {
+        Config config = new Config(project, getExtension());
         DeployTask task = (DeployTask) buildTask(config);
         String expected = "sam deploy --force-upload --use-json --fail-on-empty-changeset --confirm-changeset --debug" +
             " --template-file /tmp/packaged.yml --stack-name example-cloud-formation-stack --s3-bucket " +
@@ -57,6 +69,23 @@ class DeployTaskTest {
             "example-notification-arn1,example-notification-arn2 --tags example-tag1,example-tag2,example-tag3 " +
             "--parameter-overrides SomeParam1=ParamValue1 SomeParam2=ParamValue2";
         assertEquals(expected, String.join(" ", task.buildCommand()));
+    }
+
+    @Test
+    void testReturnCodeOnError() {
+        AwsSamExtension extension = new AwsSamExtension(envs);
+        Config config = new Config(project, extension);
+        DeployTask task = (DeployTask) buildTask(config);
+        assertEquals("return 1", String.join(" ", task.buildCommand()));
+    }
+
+    @Test
+    void testDryRunExecution() {
+        Config config = new Config(project, getExtension());
+        Config configMock = Mockito.spy(config);
+        when(configMock.isDryRunOption()).thenReturn(true);
+        DeployTask task = (DeployTask) buildTask(configMock);
+        assertEquals("return 0", String.join(" ", task.buildCommand()));
     }
 
     private Task buildTask(Config config) {
@@ -68,7 +97,7 @@ class DeployTaskTest {
         return project.task(taskParams, AwsSamPlugin.DEPLOY_TASK + "Test");
     }
 
-    private AwsSamExtension getFullExtension() {
+    private AwsSamExtension getExtension() {
         AwsSamExtension extension = new AwsSamExtension(envs);
         extension.samTemplate = samTemplate;
         extension.awsRegion = "eu-west-1";

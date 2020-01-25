@@ -11,7 +11,7 @@ import org.gradle.process.ExecResult;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class PackageTask extends DefaultTask implements CommandBuilderAwareInterface {
     private final Config config;
@@ -40,7 +40,7 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
         result.rethrowFailure();
     }
 
-    public LinkedHashSet<String> buildCommand() {
+    public Set<String> buildCommand() {
         try {
             samCommandBuilder.task("package")
                 .option("--force-upload", config.forceUpload())
@@ -54,15 +54,22 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
                 .argument("--region", config.getAwsRegion())
                 .argument("--kms-key-id", config.getKmsKeyId());
 
-            return samCommandBuilder.build();
+            Set<String> command = samCommandBuilder.build();
+
+            if (config.isDryRunOption()) {
+                logger.info("Dry run execution of command: " + String.join(" ", command));
+                command = returnCodeCommand(0);
+            }
+
+            return command;
         } catch (MissingConfigurationException | FileNotFoundException e) {
             logger.error(e.toString());
         }
 
-        return errorCodeCommand(1);
+        return returnCodeCommand(1);
     }
 
-    private String getSamTemplatePath() throws FileNotFoundException {
+    String getSamTemplatePath() throws FileNotFoundException {
         File template = config.getSamTemplate();
 
         if (!template.exists() || !template.isFile()) {
@@ -73,7 +80,7 @@ public class PackageTask extends DefaultTask implements CommandBuilderAwareInter
         return template.getAbsolutePath();
     }
 
-    private String getSamPackagedTemplate() throws FileNotFoundException {
+    String getSamPackagedTemplate() throws FileNotFoundException {
         File packaged = config.getPackagedTemplate();
 
         if (!packaged.getParentFile().exists() || !packaged.getParentFile().isDirectory()) {

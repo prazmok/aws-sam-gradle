@@ -5,7 +5,6 @@ import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,24 +13,37 @@ import java.util.Map;
 public class Config {
     private final Project project;
     private final AwsSamExtension extension;
-    private final String environment;
 
-    public Config(Project project, AwsSamExtension extension, String environment) {
+    public Config(Project project, AwsSamExtension extension) {
         this.project = project;
         this.extension = extension;
-        this.environment = environment;
+    }
+
+    public String getEnvironmentProperty() {
+        return project.hasProperty("environment")
+            ? (String) project.getProperties().get("environment")
+            : "default";
+    }
+
+    public boolean isDryRunOption() {
+        return project.hasProperty("dry-run") || project.hasProperty("dryrun");
     }
 
     public Environment getEnvironment() {
-        Environment env;
+        Environment environment = null;
+        String env = getEnvironmentProperty();
 
         try {
-            env = extension.environments.getByName(environment);
+            environment = extension.environments.getByName(env);
         } catch (UnknownDomainObjectException e) {
-            env = new Environment(environment);
+            project.getLogger().warn(e.toString());
         }
 
-        return env;
+        if (environment == null) {
+            environment = new Environment(env);
+        }
+
+        return environment;
     }
 
     public File getSamTemplate() {

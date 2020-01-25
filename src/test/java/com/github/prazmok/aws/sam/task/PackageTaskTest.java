@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ class PackageTaskTest {
             .withProjectDir(samTemplate.getParentFile())
             .build();
         envs = Mockito.mock(NamedDomainObjectContainer.class);
-        when(envs.getByName("test")).thenReturn(new Environment("test"));
+        when(envs.getByName("default")).thenReturn(new Environment("default"));
     }
 
     @AfterEach
@@ -45,13 +46,51 @@ class PackageTaskTest {
     }
 
     @Test
+    void testNotExistingTemplateFile() {
+        AwsSamExtension extension = new AwsSamExtension(envs);
+        extension.samTemplate = new File("/non/existing/sam/template.yml");
+        Config config = new Config(project, extension);
+        PackageTask task = (PackageTask) buildTask(config);
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
+        extension.samTemplate = new File("/wrong/path/to/directory");
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
+    }
+
+    @Test
+    void testNotExistingOutputDirectory() {
+        AwsSamExtension extension = new AwsSamExtension(envs);
+        extension.samTemplate = samTemplate;
+        extension.samPackagedTemplate = new File("/not/existing/directory/packaged.yml");
+        Config config = new Config(project, extension);
+        PackageTask task = (PackageTask) buildTask(config);
+        assertThrows(FileNotFoundException.class, task::getSamPackagedTemplate);
+    }
+
+    @Test
     void testBuildCommand() {
-        Config config = new Config(project, getFullExtension(), "test");
+        Config config = new Config(project, getExtension());
         PackageTask task = (PackageTask) buildTask(config);
         String expected = "sam package --force-upload --use-json --debug --template-file /tmp/template.yml " +
             "--output-template-file /tmp/packaged.yml --s3-bucket example-s3-bucket --s3-prefix " +
             "example-s3-prefix --profile default --region eu-west-1 --kms-key-id example-kms-key-id";
         assertEquals(expected, String.join(" ", task.buildCommand()));
+    }
+
+    @Test
+    void testReturnCodeOnError() {
+        AwsSamExtension extension = new AwsSamExtension(envs);
+        Config config = new Config(project, extension);
+        PackageTask task = (PackageTask) buildTask(config);
+        assertEquals("return 1", String.join(" ", task.buildCommand()));
+    }
+
+    @Test
+    void testDryRunExecution() {
+        Config config = new Config(project, getExtension());
+        Config configMock = Mockito.spy(config);
+        when(configMock.isDryRunOption()).thenReturn(true);
+        PackageTask task = (PackageTask) buildTask(configMock);
+        assertEquals("return 0", String.join(" ", task.buildCommand()));
     }
 
     private Task buildTask(Config config) {
@@ -64,7 +103,7 @@ class PackageTaskTest {
         return project.task(taskParams, AwsSamPlugin.PACKAGE_TASK + "Test");
     }
 
-    private AwsSamExtension getFullExtension() {
+    private AwsSamExtension getExtension() {
         AwsSamExtension extension = new AwsSamExtension(envs);
         extension.samTemplate = samTemplate;
         extension.awsRegion = "eu-west-1";

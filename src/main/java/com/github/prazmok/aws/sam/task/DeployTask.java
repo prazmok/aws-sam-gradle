@@ -9,10 +9,11 @@ import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.LinkedHashSet;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DeployTask extends DefaultTask implements CommandBuilderAwareInterface {
     private final Config config;
@@ -37,7 +38,7 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
         result.rethrowFailure();
     }
 
-    public LinkedHashSet<String> buildCommand() {
+    public Set<String> buildCommand() {
         try {
             samCommandBuilder.task("deploy")
                 .option("--force-upload", config.forceUpload())
@@ -58,19 +59,27 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
                 .argument("--tags", listToArgValue(config.getTags()))
                 .argument("--parameter-overrides", mapToArgValue(config.getParameterOverrides()));
 
-            return samCommandBuilder.build();
+            Set<String> command = samCommandBuilder.build();
+
+            if (config.isDryRunOption()) {
+                logger.info("Dry run execution of command: " + String.join(" ", command));
+                command = returnCodeCommand(0);
+            }
+
+            return command;
         } catch (Exception e) {
             logger.error(e.toString());
         }
 
-        return errorCodeCommand(1);
+        return returnCodeCommand(1);
     }
 
-    private String getSamPackagedTemplate() throws Exception {
+    String getSamPackagedTemplate() throws Exception {
         File packaged = config.getPackagedTemplate();
 
         if (!packaged.exists() || !packaged.isFile()) {
-            throw new Exception("Couldn't find packaged SAM template file " + packaged.getAbsolutePath() + "!");
+            throw new FileNotFoundException("Couldn't find packaged SAM template file "
+                + packaged.getAbsolutePath() + "!");
         }
 
         return packaged.getAbsolutePath();

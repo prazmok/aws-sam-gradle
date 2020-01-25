@@ -6,12 +6,10 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -31,11 +29,11 @@ public class ConfigTest {
 
     @Test
     public void testEmptyConfig() {
-        when(envs.getByName("test")).thenReturn(new Environment("test"));
+        when(envs.getByName("default")).thenReturn(new Environment("default"));
         AwsSamExtension extension = new AwsSamExtension(envs);
-        Config config = new Config(project, extension, "test");
+        Config config = new Config(project, extension);
 
-        assertEquals("test", config.getEnvironment().name);
+        assertEquals("default", config.getEnvironment().name);
         assertEquals(new File("./template.yml"), config.getSamTemplate());
         assertEquals(new File("./packaged.yml"), config.getPackagedTemplate());
         assertEquals(new LinkedHashMap<>(), config.getParameterOverrides());
@@ -65,8 +63,8 @@ public class ConfigTest {
 
     @Test
     public void testDefaultConfig() throws MissingConfigurationException {
-        when(envs.getByName("test")).thenReturn(new Environment("test"));
-        Config config = new Config(project, getBaseProperties(), "test");
+        when(envs.getByName("default")).thenReturn(new Environment("default"));
+        Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/template.yml"), config.getSamTemplate());
         assertEquals(new File("./src/test/resources/packaged.yml"), config.getPackagedTemplate());
@@ -98,8 +96,8 @@ public class ConfigTest {
 
     @Test
     public void testExtendedEnvironmentConfig() throws MissingConfigurationException {
-        when(envs.getByName("test")).thenReturn(getExtendedProperties());
-        Config config = new Config(project, getBaseProperties(), "test");
+        when(envs.getByName("default")).thenReturn(getExtendedProperties());
+        Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/extended_template.yml"), config.getSamTemplate());
         assertEquals(new File("./src/test/extended_packaged.yml"), config.getPackagedTemplate());
@@ -131,12 +129,12 @@ public class ConfigTest {
 
     @Test
     public void testConflictingConfigParameters() {
-        Environment env = new Environment("test");
+        Environment env = new Environment("default");
         env.failOnEmptyChangeset = true;
-        when(envs.getByName("test")).thenReturn(env);
+        when(envs.getByName("default")).thenReturn(env);
         AwsSamExtension ext = new AwsSamExtension(envs);
         ext.noFailOnEmptyChangeset = true;
-        Config config = new Config(project, ext, "test");
+        Config config = new Config(project, ext);
 
         assertTrue(config.failOnEmptyChangeset());
         assertFalse(config.noFailOnEmptyChangeset()); // always false when failOnEmptyChangeset = true
@@ -170,7 +168,7 @@ public class ConfigTest {
     }
 
     private Environment getExtendedProperties() {
-        Environment env = new Environment("test");
+        Environment env = new Environment("default");
         env.samTemplate = new File("./src/test/resources/extended_template.yml");
         env.samPackagedTemplate = new File("./src/test/extended_packaged.yml");
         env.awsRegion = "env_eu-west-1";
