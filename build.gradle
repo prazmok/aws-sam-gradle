@@ -11,23 +11,62 @@ repositories {
     jcenter()
 }
 
-dependencies {
-    implementation gradleApi()
-    implementation("com.github.jengelman.gradle.plugins:shadow:5.0.0")
-    testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
-    testImplementation('org.mockito:mockito-core:3.2.4')
+configurations {
+    testFunctional.extendsFrom testCompile
+    testFunctional.extendsFrom testRuntime
+}
+
+sourceSets {
+    testFunctional {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/testFunctional/java')
+        }
+        resources {
+            srcDir file('src/testFunctional/resources')
+        }
+    }
 }
 
 test {
     useJUnitPlatform()
-
     testLogging {
         events "passed", "skipped", "failed"
         exceptionFormat "full"
     }
 }
 
+task testFunctional(type: Test) {
+    description("Runs functional tests")
+    testClassesDirs = sourceSets.testFunctional.output.classesDirs
+    classpath = sourceSets.testFunctional.runtimeClasspath
+    outputs.upToDateWhen { false }
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+    mustRunAfter test
+}
+
+check.dependsOn testFunctional
+
+dependencies {
+    implementation gradleApi()
+    implementation("com.github.jengelman.gradle.plugins:shadow:5.0.0")
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
+    testImplementation('org.mockito:mockito-core:3.2.4')
+
+    testFunctionalImplementation gradleTestKit()
+    testFunctionalImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
+    testFunctionalImplementation('org.mockito:mockito-core:3.2.4')
+}
+
 gradlePlugin {
+    testSourceSets sourceSets.testFunctional
+
     plugins {
         AwsSamPlugin {
             id = 'com.github.prazmok.aws.sam'

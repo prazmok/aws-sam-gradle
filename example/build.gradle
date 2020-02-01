@@ -10,19 +10,7 @@ buildscript {
 
 apply plugin: com.github.prazmok.aws.sam.AwsSamPlugin
 
-repositories {
-    jcenter()
-}
-
-dependencies {
-    implementation 'com.amazonaws:aws-lambda-java-log4j:1.0.0'
-}
-
-version = '0.0.1'
-
 deployment {
-    samTemplate = new File("./template.yml")
-    samPackagedTemplate = new File("./packaged.yml")
     awsRegion = "eu-west-1"
     awsProfile = "default"
     kmsKeyId = "example-kms-key-id"
@@ -43,14 +31,12 @@ deployment {
     parameterOverrides = [
         ExampleParameter: 'ExampleValue'
     ]
-
     environments {
-        dev {
-            forceUpload = true
+        test {
             debug = true
             failOnEmptyChangeset = true
             parameterOverrides = [
-                ExampleParameter: 'ExampleValueExtended'
+                ExampleParameter: 'ExtendedExampleValue'
             ]
         }
     }

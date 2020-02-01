@@ -1,4 +1,4 @@
-package com.github.prazmok.aws.sam.task.command;
+package com.github.prazmok.aws.sam.command;
 
 import java.util.LinkedHashSet;
 

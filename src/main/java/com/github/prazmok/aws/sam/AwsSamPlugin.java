@@ -4,8 +4,6 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import com.github.prazmok.aws.sam.config.AwsSamExtension;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.Environment;
-import com.github.prazmok.aws.sam.task.DeployTask;
-import com.github.prazmok.aws.sam.task.PackageTask;
 import org.gradle.api.NamedDomainObjectContainer;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

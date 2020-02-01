@@ -1,7 +1,7 @@
-package com.github.prazmok.aws.sam.task;
+package com.github.prazmok.aws.sam;
 
 import com.github.prazmok.aws.sam.config.Config;
-import com.github.prazmok.aws.sam.task.command.SamCommandBuilder;
+import com.github.prazmok.aws.sam.command.SamCommandBuilder;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.tasks.TaskAction;
@@ -10,10 +10,7 @@ import org.gradle.process.ExecResult;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DeployTask extends DefaultTask implements CommandBuilderAwareInterface {
     private final Config config;
@@ -32,7 +29,7 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
         });
 
         if (result.getExitValue() == 0) {
-            this.logger.lifecycle("SAM deploy finished");
+            this.logger.lifecycle("Successfully finished AWS SAM deployment!");
         }
 
         result.rethrowFailure();
@@ -47,7 +44,7 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
                 .option("--no-fail-on-empty-changeset", config.noFailOnEmptyChangeset())
                 .option("--confirm-changeset", config.confirmChangeset())
                 .option("--debug", config.debug())
-                .argument("--template-file", getSamPackagedTemplate())
+                .argument("--template-file", samPackagedTemplate())
                 .argument("--stack-name", config.getStackName())
                 .argument("--s3-bucket", config.getS3Bucket())
                 .argument("--s3-prefix", config.getS3Prefix())
@@ -62,8 +59,10 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
             Set<String> command = samCommandBuilder.build();
 
             if (config.isDryRunOption()) {
-                logger.info("Dry run execution of command: " + String.join(" ", command));
-                command = returnCodeCommand(0);
+                logger.lifecycle("Dry run execution of command:\n\n" + String.join(" ", command));
+                command = new LinkedHashSet<String>() {{
+                    add("echo");
+                }};
             }
 
             return command;
@@ -74,10 +73,10 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
         return returnCodeCommand(1);
     }
 
-    String getSamPackagedTemplate() throws Exception {
+    String samPackagedTemplate() throws Exception {
         File packaged = config.getPackagedTemplate();
 
-        if (!packaged.exists() || !packaged.isFile()) {
+        if (!config.isDryRunOption() && (!packaged.exists() || !packaged.isFile())) {
             throw new FileNotFoundException("Couldn't find packaged SAM template file "
                 + packaged.getAbsolutePath() + "!");
         }
