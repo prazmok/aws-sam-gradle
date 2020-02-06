@@ -1,15 +1,25 @@
 package com.github.prazmok.aws.sam.command;
 
+import org.gradle.api.logging.Logger;
+
 import java.util.LinkedHashSet;
 
 public class CommandBuilder {
     private boolean hasCommand = false;
 
     protected final LinkedHashSet<String> params = new LinkedHashSet<>();
+    protected final Logger logger;
     protected final ArgSeparator argSeparator;
+    protected final boolean dryRun;
 
-    public CommandBuilder(ArgSeparator argSeparator) {
+    public CommandBuilder(Logger logger, ArgSeparator argSeparator) {
+        this(logger, argSeparator, false);
+    }
+
+    public CommandBuilder(Logger logger, ArgSeparator argSeparator, boolean dryRun) {
+        this.logger = logger;
         this.argSeparator = argSeparator;
+        this.dryRun = dryRun;
     }
 
     public CommandBuilder command(String command) {
@@ -67,6 +77,14 @@ public class CommandBuilder {
             throw new IllegalStateException("Missing command property!");
         }
 
-        return params;
+        if (!dryRun) {
+            return params;
+        }
+
+        logger.lifecycle("Dry run execution of command:\n\n" + String.join(" ", params));
+
+        return new LinkedHashSet<String>() {{
+            add("echo");
+        }};
     }
 }

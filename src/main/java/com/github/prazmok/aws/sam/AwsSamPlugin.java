@@ -16,6 +16,7 @@ import java.util.Map;
 public class AwsSamPlugin implements Plugin<Project> {
     public static final String EXTENSION = "deployment";
     public static final String EXT_ENVIRONMENTS = "environments";
+    public static final String VALIDATE_TASK = "validateSam";
     public static final String PACKAGE_TASK = "packageSam";
     public static final String DEPLOY_TASK = "deploySam";
 
@@ -46,17 +47,30 @@ public class AwsSamPlugin implements Plugin<Project> {
 
         final Config config = new Config(project, extension);
 
-        packageTask(config);
-        deployTask(config);
+        validateSamTask(config);
+        packageSamTask(config);
+        deploySamTask(config);
     }
 
-    private void packageTask(Config config) {
-        Object[] dependsOn = {"clean", "build"};
+    private void validateSamTask(Config config) {
+        Object[] constructorArgs = {config};
+        Map<String, Object> taskParams = new HashMap<String, Object>() {{
+            put("type", ValidateTask.class);
+            put("group", "AWS SAM");
+            put("description", "Validates AWS SAM application.");
+            put("constructorArgs", constructorArgs);
+        }};
+
+        project.task(taskParams, VALIDATE_TASK);
+    }
+
+    private void packageSamTask(Config config) {
+        Object[] dependsOn = {VALIDATE_TASK, "clean", "build"};
         Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);
             put("group", "AWS SAM");
-            put("description", "Packages an AWS SAM application.");
+            put("description", "Package AWS SAM application.");
             put("dependsOn", dependsOn);
             put("constructorArgs", constructorArgs);
         }};
@@ -65,13 +79,13 @@ public class AwsSamPlugin implements Plugin<Project> {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private void deployTask(Config config) {
+    private void deploySamTask(Config config) {
         Object[] dependsOn = {PACKAGE_TASK};
         Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", DeployTask.class);
             put("group", "AWS SAM");
-            put("description", "Deploys an AWS SAM application.");
+            put("description", "Deploys AWS SAM application.");
             put("dependsOn", dependsOn);
             put("constructorArgs", constructorArgs);
         }};

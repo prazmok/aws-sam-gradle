@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.10.0'
+    id 'idea'
 }
 
 group = 'com.github.prazmok'

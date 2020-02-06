@@ -1,20 +1,25 @@
 package com.github.prazmok.aws.sam.command;
 
+import org.gradle.api.logging.Logger;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandBuilderTest {
+    @Mock
+    Logger logger;
+
     @Test
     void testMissingCommandException() {
-        CommandBuilder builder = new CommandBuilder(ArgSeparator.SPACE);
+        CommandBuilder builder = new CommandBuilder(logger, ArgSeparator.SPACE);
         assertThrows(IllegalStateException.class, builder::build);
     }
 
     @Test
     void testMultipleCommands() {
-        CommandBuilder builder = new CommandBuilder(ArgSeparator.SPACE);
+        CommandBuilder builder = new CommandBuilder(logger, ArgSeparator.SPACE);
         builder.command("java")
             .command("multiple")
             .command("commands")
@@ -25,7 +30,7 @@ class CommandBuilderTest {
 
     @Test
     void testMultipleTasks() {
-        CommandBuilder builder = new CommandBuilder(ArgSeparator.SPACE);
+        CommandBuilder builder = new CommandBuilder(logger, ArgSeparator.SPACE);
         builder.command("gradle")
             .task("clean")
             .task("build")
@@ -35,7 +40,7 @@ class CommandBuilderTest {
 
     @Test
     void testCommandBuilder() {
-        CommandBuilder builder = new CommandBuilder(ArgSeparator.SPACE);
+        CommandBuilder builder = new CommandBuilder(logger, ArgSeparator.SPACE);
         builder.command("some");
         builder.task("task");
         builder.option("--correctOption", true);
@@ -51,7 +56,7 @@ class CommandBuilderTest {
 
     @Test
     void testArgSeparator() {
-        CommandBuilder builder = new CommandBuilder(ArgSeparator.EQUAL_SIGN);
+        CommandBuilder builder = new CommandBuilder(logger, ArgSeparator.EQUAL_SIGN);
         builder.command("some");
         builder.task("task");
         builder.argument("--arg", "value");

@@ -1,25 +1,26 @@
 package com.github.prazmok.aws.sam;
 
-import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.command.SamCommandBuilder;
-import org.gradle.api.DefaultTask;
-import org.gradle.api.logging.Logger;
+import com.github.prazmok.aws.sam.config.Config;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class DeployTask extends DefaultTask implements CommandBuilderAwareInterface {
+public class DeployTask extends SamCliTask {
     private final Config config;
-    private final Logger logger = getProject().getLogger();
-    private final SamCommandBuilder samCommandBuilder = new SamCommandBuilder();
+    private final SamCommandBuilder samCommandBuilder;
 
     @Inject
     public DeployTask(Config config) {
         this.config = config;
+        this.samCommandBuilder = new SamCommandBuilder(logger, config.isDryRunOption());
     }
 
     @TaskAction
@@ -56,16 +57,7 @@ public class DeployTask extends DefaultTask implements CommandBuilderAwareInterf
                 .argument("--tags", listToArgValue(config.getTags()))
                 .argument("--parameter-overrides", mapToArgValue(config.getParameterOverrides()));
 
-            Set<String> command = samCommandBuilder.build();
-
-            if (config.isDryRunOption()) {
-                logger.lifecycle("Dry run execution of command:\n\n" + String.join(" ", command));
-                command = new LinkedHashSet<String>() {{
-                    add("echo");
-                }};
-            }
-
-            return command;
+            return samCommandBuilder.build();
         } catch (Exception e) {
             logger.error(e.toString());
         }

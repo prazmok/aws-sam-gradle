@@ -24,10 +24,16 @@ class AwsSamPluginFunTest {
 
         assertEquals(SUCCESS, result.task(":build").getOutcome());
         assertEquals(SUCCESS, result.task(":shadowJar").getOutcome());
+        assertEquals(SUCCESS, result.task(":validateSam").getOutcome());
         assertEquals(SUCCESS, result.task(":packageSam").getOutcome());
         assertEquals(SUCCESS, result.task(":deploySam").getOutcome());
 
         String rootDir = projectDir.getAbsolutePath();
+
+        assertTrue(result.getOutput().contains("> Task :validateSam"));
+        assertTrue(result.getOutput().contains("Dry run execution of command:"));
+        assertTrue(result.getOutput().contains("sam validate --debug --template-file " + rootDir + "/template.yml --profile default --region eu-west-1"));
+        assertTrue(result.getOutput().contains("AWS SAM template " + rootDir + "/template.yml is valid"));
 
         assertTrue(result.getOutput().contains("> Task :packageSam"));
         assertTrue(result.getOutput().contains("Dry run execution of command:"));
@@ -38,5 +44,7 @@ class AwsSamPluginFunTest {
         assertTrue(result.getOutput().contains("Dry run execution of command:"));
         assertTrue(result.getOutput().contains("sam deploy --fail-on-empty-changeset --debug --template-file " + rootDir + "/packaged.yml --stack-name example-cloud-formation-stack --s3-bucket example-s3-bucket --s3-prefix example-s3-prefix --profile default --region eu-west-1 --kms-key-id example-kms-key-id --capabilities CAPABILITY_IAM,CAPABILITY_NAMED_IAM --notification-arns example-notification-arn1,example-notification-arn2 --tags example-tag1,example-tag2 --parameter-overrides ExampleParameter=ExtendedExampleValue"));
         assertTrue(result.getOutput().contains("Successfully finished AWS SAM deployment!"));
+
+        assertTrue(result.getOutput().contains("BUILD SUCCESSFUL"));
     }
 }

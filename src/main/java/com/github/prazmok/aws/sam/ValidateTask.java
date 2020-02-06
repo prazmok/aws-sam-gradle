@@ -11,28 +11,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Set;
 
-public class PackageTask extends SamCliTask {
+public class ValidateTask extends SamCliTask {
     private final Config config;
     private final SamCommandBuilder samCommandBuilder;
 
     @Inject
-    public PackageTask(Config config) {
+    public ValidateTask(Config config) {
         this.config = config;
         this.samCommandBuilder = new SamCommandBuilder(logger, config.isDryRunOption());
     }
 
     @TaskAction
-    protected void packageSam() throws Exception {
+    protected void validateSam() {
         ExecResult result = getProject().exec((action) -> {
             action.commandLine(buildCommand());
         });
 
         if (result.getExitValue() == 0) {
-            if (!config.isDryRunOption() && !config.getPackagedTemplate().exists()) {
-                throw new Exception("Couldn't generate output SAM template!");
-            }
-
-            logger.lifecycle("Successfully created output SAM template: " + config.getPackagedTemplate().getPath());
+            logger.lifecycle("AWS SAM template " + config.getSamTemplate().getPath() + " is valid");
         }
 
         result.rethrowFailure();
@@ -40,17 +36,11 @@ public class PackageTask extends SamCliTask {
 
     public Set<String> buildCommand() {
         try {
-            samCommandBuilder.task("package")
-                .option("--force-upload", config.forceUpload())
-                .option("--use-json", config.useJson())
+            samCommandBuilder.task("validate")
                 .option("--debug", config.debug())
                 .argument("--template-file", samTemplatePath())
-                .argument("--output-template-file", samPackagedTemplate())
-                .argument("--s3-bucket", config.getS3Bucket())
-                .argument("--s3-prefix", config.getS3Prefix())
                 .argument("--profile", config.getAwsProfile())
-                .argument("--region", config.getAwsRegion())
-                .argument("--kms-key-id", config.getKmsKeyId());
+                .argument("--region", config.getAwsRegion());
 
             return samCommandBuilder.build();
         } catch (MissingConfigurationException | FileNotFoundException e) {
@@ -69,16 +59,5 @@ public class PackageTask extends SamCliTask {
         }
 
         return template.getAbsolutePath();
-    }
-
-    String samPackagedTemplate() throws FileNotFoundException {
-        File packaged = config.getPackagedTemplate();
-
-        if (!packaged.getParentFile().exists() || !packaged.getParentFile().isDirectory()) {
-            throw new FileNotFoundException("Provided packaged template directory ("
-                + packaged.getParentFile().getAbsolutePath() + ") is invalid!");
-        }
-
-        return packaged.getAbsolutePath();
     }
 }
