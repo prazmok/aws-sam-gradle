@@ -20,7 +20,6 @@ abstract class ConfigProperties {
     public Boolean noExecuteChangeset;
     public Boolean failOnEmptyChangeset;
     public Boolean noFailOnEmptyChangeset;
-    public Boolean confirmChangeset;
     public List<String> capabilities;
     public List<String> notificationArns;
     public List<String> tags;

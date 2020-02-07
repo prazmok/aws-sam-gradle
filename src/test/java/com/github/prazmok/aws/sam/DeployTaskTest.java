@@ -61,7 +61,7 @@ class DeployTaskTest {
     void testBuildCommand() {
         Config config = new Config(project, getExtension());
         DeployTask task = (DeployTask) buildTask(config);
-        String expected = "sam deploy --force-upload --use-json --fail-on-empty-changeset --confirm-changeset --debug" +
+        String expected = "sam deploy --force-upload --use-json --no-execute-changeset --fail-on-empty-changeset --debug" +
             " --template-file /tmp/packaged.yml --stack-name example-cloud-formation-stack --s3-bucket " +
             "example-s3-bucket --s3-prefix example-s3-prefix --profile default --region eu-west-1 --kms-key-id " +
             "example-kms-key-id --capabilities CAPABILITY_IAM,CAPABILITY_NAMED_IAM --notification-arns " +
@@ -112,7 +112,6 @@ class DeployTaskTest {
         extension.noExecuteChangeset = true;
         extension.failOnEmptyChangeset = true;
         extension.noFailOnEmptyChangeset = true;
-        extension.confirmChangeset = true;
         extension.debug = true;
 
         extension.capabilities = new LinkedList<>();

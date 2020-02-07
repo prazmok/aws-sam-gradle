@@ -206,16 +206,6 @@ public class Config {
         return false;
     }
 
-    public boolean confirmChangeset() {
-        if (getEnvironment().confirmChangeset != null) {
-            return getEnvironment().confirmChangeset;
-        } else if (extension.confirmChangeset != null) {
-            return extension.confirmChangeset;
-        }
-
-        return false;
-    }
-
     public Map<String, Object> getParameterOverrides() {
         if (getEnvironment().parameterOverrides != null) {
             return getEnvironment().parameterOverrides;

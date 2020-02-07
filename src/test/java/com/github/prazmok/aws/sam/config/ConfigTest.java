@@ -53,7 +53,6 @@ public class ConfigTest {
         assertFalse(config.debug());
         assertFalse(config.noExecuteChangeset());
         assertFalse(config.noFailOnEmptyChangeset());
-        assertFalse(config.confirmChangeset());
 
         // Assert exceptions when missing required configuration properties
         assertThrows(MissingConfigurationException.class, config::getAwsRegion);
@@ -91,7 +90,6 @@ public class ConfigTest {
         assertTrue(config.debug());
         assertTrue(config.noExecuteChangeset());
         assertTrue(config.noFailOnEmptyChangeset());
-        assertTrue(config.confirmChangeset());
     }
 
     @Test
@@ -124,7 +122,6 @@ public class ConfigTest {
         assertFalse(config.debug());
         assertFalse(config.noExecuteChangeset());
         assertFalse(config.noFailOnEmptyChangeset());
-        assertFalse(config.confirmChangeset());
     }
 
     @Test
@@ -157,7 +154,6 @@ public class ConfigTest {
         extension.noExecuteChangeset = true;
         extension.failOnEmptyChangeset = false;
         extension.noFailOnEmptyChangeset = true;
-        extension.confirmChangeset = true;
         extension.capabilities = new LinkedList<>(Collections.singletonList("CAPABILITY_IAM"));
         extension.tags = new LinkedList<>(Collections.singletonList("TAG"));
         extension.notificationArns = new LinkedList<>(Collections.singletonList("NotificationArn"));
@@ -184,7 +180,6 @@ public class ConfigTest {
         env.noExecuteChangeset = false;
         env.failOnEmptyChangeset = true;
         env.noFailOnEmptyChangeset = false;
-        env.confirmChangeset = false;
         env.notificationArns = new LinkedList<>(Collections.singletonList("ExtendedEnvNotificationArn"));
         env.capabilities = new LinkedList<>(Collections.singletonList("CAPABILITY_NAMED_IAM"));
         env.tags = new LinkedList<>(Collections.singletonList("EXTENDED_ENV_TAG"));
