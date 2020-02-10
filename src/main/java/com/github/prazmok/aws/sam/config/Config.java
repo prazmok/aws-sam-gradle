@@ -36,7 +36,7 @@ public class Config {
         try {
             environment = extension.environments.getByName(env);
         } catch (UnknownDomainObjectException e) {
-            project.getLogger().warn(e.toString());
+            project.getLogger().info(e.toString());
         }
 
         if (environment == null) {
