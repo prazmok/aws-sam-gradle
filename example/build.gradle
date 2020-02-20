@@ -11,6 +11,8 @@ buildscript {
 apply plugin: com.github.prazmok.aws.sam.AwsSamPlugin
 
 deployment {
+    //samTemplate = File("/path/to/template.yml")
+    //samPackagedTemplate = File("/path/to/packaged.yml")
     awsRegion = "eu-west-1"
     awsProfile = "default"
     kmsKeyId = "example-kms-key-id"
