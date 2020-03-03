@@ -13,6 +13,7 @@ import java.util.Map;
 public class Config {
     private final Project project;
     private final AwsSamExtension extension;
+    private final String[] environmentAliases = {"environment", "env", "stage"};
 
     public Config(Project project, AwsSamExtension extension) {
         this.project = project;
@@ -20,9 +21,13 @@ public class Config {
     }
 
     public String getEnvironmentProperty() {
-        return project.hasProperty("environment")
-            ? (String) project.getProperties().get("environment")
-            : "default";
+        for (String alias : environmentAliases) {
+            if (project.hasProperty(alias)) {
+                return (String) project.getProperties().get("environment");
+            }
+        }
+
+        return null;
     }
 
     public boolean isDryRunOption() {
@@ -30,20 +35,14 @@ public class Config {
     }
 
     public Environment getEnvironment() {
-        Environment environment = null;
         String env = getEnvironmentProperty();
+        Environment environment = extension.environments.findByName(env);
 
-        try {
-            environment = extension.environments.getByName(env);
-        } catch (UnknownDomainObjectException e) {
-            project.getLogger().info(e.toString());
+        if (environment != null) {
+            return environment;
         }
 
-        if (environment == null) {
-            environment = new Environment(env);
-        }
-
-        return environment;
+        return new Environment(env);
     }
 
     public File getSamTemplate() {

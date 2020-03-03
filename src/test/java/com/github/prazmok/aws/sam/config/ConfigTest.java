@@ -29,11 +29,11 @@ public class ConfigTest {
 
     @Test
     public void testEmptyConfig() {
-        when(envs.getByName("default")).thenReturn(new Environment("default"));
+        when(envs.findByName(null)).thenReturn(new Environment(null));
         AwsSamExtension extension = new AwsSamExtension(envs);
         Config config = new Config(project, extension);
 
-        assertEquals("default", config.getEnvironment().name);
+        assertEquals(null, config.getEnvironment().name);
         assertEquals(new File("./template.yml"), config.getSamTemplate());
         assertEquals(new File("./packaged.yml"), config.getPackagedTemplate());
         assertEquals(new LinkedHashMap<>(), config.getParameterOverrides());
@@ -62,13 +62,13 @@ public class ConfigTest {
 
     @Test
     public void testDefaultConfig() throws MissingConfigurationException {
-        when(envs.getByName("default")).thenReturn(new Environment("default"));
+        when(envs.findByName(null)).thenReturn(new Environment(null));
         Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/template.yml"), config.getSamTemplate());
         assertEquals(new File("./src/test/resources/packaged.yml"), config.getPackagedTemplate());
         assertEquals("eu-west-1", config.getAwsRegion());
-        assertEquals("default", config.getAwsProfile());
+        assertEquals(null, config.getAwsProfile());
         assertEquals("kms-key-id", config.getKmsKeyId());
         assertEquals("bucket-name", config.getS3Bucket());
         assertEquals("bucket-prefix", config.getS3Prefix());
@@ -94,7 +94,7 @@ public class ConfigTest {
 
     @Test
     public void testExtendedEnvironmentConfig() throws MissingConfigurationException {
-        when(envs.getByName("default")).thenReturn(getExtendedProperties());
+        when(envs.findByName(null)).thenReturn(getExtendedProperties());
         Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/extended_template.yml"), config.getSamTemplate());
@@ -126,9 +126,9 @@ public class ConfigTest {
 
     @Test
     public void testConflictingConfigParameters() {
-        Environment env = new Environment("default");
+        Environment env = new Environment(null);
         env.failOnEmptyChangeset = true;
-        when(envs.getByName("default")).thenReturn(env);
+        when(envs.findByName(null)).thenReturn(env);
         AwsSamExtension ext = new AwsSamExtension(envs);
         ext.noFailOnEmptyChangeset = true;
         Config config = new Config(project, ext);
@@ -142,7 +142,7 @@ public class ConfigTest {
         extension.samTemplate = new File("./src/test/resources/template.yml");
         extension.samPackagedTemplate = new File("./src/test/resources/packaged.yml");
         extension.awsRegion = "eu-west-1";
-        extension.awsProfile = "default";
+        extension.awsProfile = null;
         extension.kmsKeyId = "kms-key-id";
         extension.s3Bucket = "bucket-name";
         extension.s3Prefix = "bucket-prefix";
@@ -164,7 +164,7 @@ public class ConfigTest {
     }
 
     private Environment getExtendedProperties() {
-        Environment env = new Environment("default");
+        Environment env = new Environment(null);
         env.samTemplate = new File("./src/test/resources/extended_template.yml");
         env.samPackagedTemplate = new File("./src/test/extended_packaged.yml");
         env.awsRegion = "env_eu-west-1";
