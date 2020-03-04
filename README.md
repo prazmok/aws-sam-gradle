@@ -10,3 +10,8 @@ Under the hood plugin uses AWS SAM CLI so make sure you have installed:
 * AWS CLI 
 * AWS SAM CLI
 * Docker
+
+## Code of Conduct & Contributing guidelines
+
+* [Code of Conduct for contributors](docs/CODE_OF_CONDUCT.md).
+* [Contribution guidelines for this project](docs/CONTRIBUTING.md).
