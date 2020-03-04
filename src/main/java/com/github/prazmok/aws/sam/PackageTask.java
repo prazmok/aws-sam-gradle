@@ -1,8 +1,13 @@
 package com.github.prazmok.aws.sam;
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar;
 import com.github.prazmok.aws.sam.command.SamCommandBuilder;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 
@@ -44,8 +49,8 @@ public class PackageTask extends SamCliTask {
                 .option("--force-upload", config.forceUpload())
                 .option("--use-json", config.useJson())
                 .option("--debug", config.debug())
-                .argument("--template-file", samTemplatePath())
-                .argument("--output-template-file", samPackagedTemplate())
+                .argument("--template-file", getSamTemplatePath().getAbsolutePath())
+                .argument("--output-template-file", getSamPackagedTemplate().getAbsolutePath())
                 .argument("--s3-bucket", config.getS3Bucket())
                 .argument("--s3-prefix", config.getS3Prefix())
                 .argument("--profile", config.getAwsProfile())
@@ -60,7 +65,15 @@ public class PackageTask extends SamCliTask {
         return returnCodeCommand(1);
     }
 
-    String samTemplatePath() throws FileNotFoundException {
+    @InputFiles
+    FileCollection getJars() {
+        ShadowJar jarTask = (ShadowJar) getProject().getTasks().getByName("shadowJar");
+
+        return jarTask.getOutputs().getFiles();
+    }
+
+    @InputFile
+    File getSamTemplatePath() throws FileNotFoundException {
         File template = config.getSamTemplate();
 
         if (!template.exists() || !template.isFile()) {
@@ -68,10 +81,11 @@ public class PackageTask extends SamCliTask {
                 + template.getAbsolutePath() + " location!");
         }
 
-        return template.getAbsolutePath();
+        return template;
     }
 
-    String samPackagedTemplate() throws FileNotFoundException {
+    @OutputFile
+    File getSamPackagedTemplate() throws FileNotFoundException {
         File packaged = config.getPackagedTemplate();
 
         if (!packaged.getParentFile().exists() || !packaged.getParentFile().isDirectory()) {
@@ -79,6 +93,6 @@ public class PackageTask extends SamCliTask {
                 + packaged.getParentFile().getAbsolutePath() + ") is invalid!");
         }
 
-        return packaged.getAbsolutePath();
+        return packaged;
     }
 }

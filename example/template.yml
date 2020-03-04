@@ -10,7 +10,7 @@ Globals:
   Function:
     Runtime: "java11"
     MemorySize: 128
-    Timeout: 3
+    Timeout: 30
 
 Resources:
   JavaLambdaFunction:
