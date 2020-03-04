@@ -51,6 +51,7 @@ deployment {
     awsRegion = "eu-west-1"
     s3Bucket = "default-bucket"
     stackName = "default-stack"
+    tags = ["aws", "sam", "plugin"]
     parameterOverrides = [
         ExampleParam: "ExampleValue"
     ]
@@ -72,6 +73,8 @@ deployment {
     }
 }
 ```
+
+> To see more advanced configuration check [./example/build.gradle](./example/build.gradle). 
 
 Configuration reference:
 
