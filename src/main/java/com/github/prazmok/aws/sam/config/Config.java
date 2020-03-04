@@ -22,7 +22,7 @@ public class Config {
     public String getEnvironmentProperty() {
         for (String alias : environmentAliases) {
             if (project.hasProperty(alias)) {
-                return (String) project.getProperties().get("environment");
+                return (String) project.getProperties().get(alias);
             }
         }
 
