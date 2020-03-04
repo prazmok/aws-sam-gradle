@@ -19,7 +19,7 @@ Initialize plugin using the [plugins DSL](https://docs.gradle.org/current/usergu
 
 ```groovy
 plugins {
-  id "com.github.prazmok.aws.sam" version "0.0.14"
+  id "com.github.prazmok.aws.sam" version "1.0.0"
 }
 ```
 
@@ -33,7 +33,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "gradle.plugin.com.github.prazmok:aws-sam-gradle:0.0.14"
+    classpath "gradle.plugin.com.github.prazmok:aws-sam-gradle:1.0.0"
   }
 }
 
