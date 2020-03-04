@@ -12,7 +12,7 @@ When contributing to this repository, please first discuss the change you wish t
 ## Plugin Publishing Process
 
 1. Merge in all Pull Requests to the `master` branch.
-2. Update build version (`build.gradle`).
+2. Update build version (`build.gradle`) and any example version in README.md > Configuration.
 3. Commit new version and create new tag using [SemVer](http://semver.org/).
 4. Make sure your local `gradle.properties` are correct ([more details here](https://guides.gradle.org/publishing-plugins-to-gradle-plugin-portal/#create_an_account_on_the_gradle_plugin_portal)).
 5. Publish plugin by running `./gradlew publishPlugins`.

@@ -209,16 +209,6 @@ public class Config {
         return false;
     }
 
-    public Map<String, Object> getParameterOverrides() {
-        if (getEnvironment().parameterOverrides != null) {
-            return getEnvironment().parameterOverrides;
-        } else if (extension.parameterOverrides != null) {
-            return extension.parameterOverrides;
-        }
-
-        return new LinkedHashMap<>();
-    }
-
     public List<String> getTags() {
         if (getEnvironment().tags != null) {
             return getEnvironment().tags;
@@ -249,5 +239,15 @@ public class Config {
         }
 
         return new LinkedList<>();
+    }
+
+    public Map<String, Object> getParameterOverrides() {
+        if (getEnvironment().parameterOverrides != null) {
+            return getEnvironment().parameterOverrides;
+        } else if (extension.parameterOverrides != null) {
+            return extension.parameterOverrides;
+        }
+
+        return new LinkedHashMap<>();
     }
 }
