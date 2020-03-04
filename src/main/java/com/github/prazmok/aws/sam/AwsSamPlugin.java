@@ -65,7 +65,7 @@ public class AwsSamPlugin implements Plugin<Project> {
     }
 
     private void packageSamTask(Config config) {
-        Object[] dependsOn = {VALIDATE_TASK, "clean", "build"};
+        Object[] dependsOn = {VALIDATE_TASK, "build"};
         Object[] constructorArgs = {config};
         Map<String, Object> taskParams = new HashMap<String, Object>() {{
             put("type", PackageTask.class);

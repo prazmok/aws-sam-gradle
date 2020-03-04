@@ -2,7 +2,6 @@ package com.github.prazmok.aws.sam.config;
 
 import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
 import org.gradle.api.Project;
-import org.gradle.api.UnknownDomainObjectException;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -27,7 +26,7 @@ public class Config {
             }
         }
 
-        return null;
+        return System.getenv("ENVIRONMENT");
     }
 
     public boolean isDryRunOption() {
@@ -36,6 +35,11 @@ public class Config {
 
     public Environment getEnvironment() {
         String env = getEnvironmentProperty();
+
+        if (env == null) {
+            return new Environment(null);
+        }
+
         Environment environment = extension.environments.findByName(env);
 
         if (environment != null) {

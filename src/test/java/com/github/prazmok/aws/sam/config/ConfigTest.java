@@ -6,10 +6,11 @@ import org.gradle.api.Project;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.OngoingStubbing;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -29,7 +30,7 @@ public class ConfigTest {
 
     @Test
     public void testEmptyConfig() {
-        when(envs.findByName(null)).thenReturn(new Environment(null));
+        when(envs.findByName("test")).thenReturn(new Environment(null));
         AwsSamExtension extension = new AwsSamExtension(envs);
         Config config = new Config(project, extension);
 
@@ -39,7 +40,9 @@ public class ConfigTest {
         assertEquals(new LinkedHashMap<>(), config.getParameterOverrides());
         assertEquals(new LinkedList<>(), config.getTags());
         assertEquals(new LinkedList<>(), config.getNotificationArns());
-        assertEquals(new LinkedList<String>() {{ add("CAPABILITY_IAM"); }}, config.getCapabilities());
+        assertEquals(new LinkedList<String>() {{
+            add("CAPABILITY_IAM");
+        }}, config.getCapabilities());
 
         assertNull(config.getAwsProfile());
         assertNull(config.getS3Prefix());
@@ -62,7 +65,6 @@ public class ConfigTest {
 
     @Test
     public void testDefaultConfig() throws MissingConfigurationException {
-        when(envs.findByName(null)).thenReturn(new Environment(null));
         Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/template.yml"), config.getSamTemplate());
@@ -94,7 +96,7 @@ public class ConfigTest {
 
     @Test
     public void testExtendedEnvironmentConfig() throws MissingConfigurationException {
-        when(envs.findByName(null)).thenReturn(getExtendedProperties());
+        when(envs.findByName("test")).thenReturn(getExtendedProperties());
         Config config = new Config(project, getBaseProperties());
 
         assertEquals(new File("./src/test/resources/extended_template.yml"), config.getSamTemplate());
@@ -126,9 +128,9 @@ public class ConfigTest {
 
     @Test
     public void testConflictingConfigParameters() {
-        Environment env = new Environment(null);
+        Environment env = new Environment("test");
         env.failOnEmptyChangeset = true;
-        when(envs.findByName(null)).thenReturn(env);
+        when(envs.findByName("test")).thenReturn(env);
         AwsSamExtension ext = new AwsSamExtension(envs);
         ext.noFailOnEmptyChangeset = true;
         Config config = new Config(project, ext);
@@ -164,7 +166,7 @@ public class ConfigTest {
     }
 
     private Environment getExtendedProperties() {
-        Environment env = new Environment(null);
+        Environment env = new Environment("test");
         env.samTemplate = new File("./src/test/resources/extended_template.yml");
         env.samPackagedTemplate = new File("./src/test/extended_packaged.yml");
         env.awsRegion = "env_eu-west-1";

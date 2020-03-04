@@ -50,9 +50,9 @@ class PackageTaskTest {
         extension.samTemplate = new File("/non/existing/sam/template.yml");
         Config config = new Config(project, extension);
         PackageTask task = (PackageTask) buildTask(config);
-        assertThrows(FileNotFoundException.class, task::samTemplatePath);
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
         extension.samTemplate = new File("/wrong/path/to/directory");
-        assertThrows(FileNotFoundException.class, task::samTemplatePath);
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
     }
 
     @Test
@@ -62,7 +62,7 @@ class PackageTaskTest {
         extension.samPackagedTemplate = new File("/not/existing/directory/packaged.yml");
         Config config = new Config(project, extension);
         PackageTask task = (PackageTask) buildTask(config);
-        assertThrows(FileNotFoundException.class, task::samPackagedTemplate);
+        assertThrows(FileNotFoundException.class, task::getSamPackagedTemplate);
     }
 
     @Test

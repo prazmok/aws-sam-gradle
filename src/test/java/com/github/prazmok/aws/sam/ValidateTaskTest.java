@@ -50,9 +50,9 @@ class ValidateTaskTest {
         extension.samTemplate = new File("/non/existing/sam/template.yml");
         Config config = new Config(project, extension);
         ValidateTask task = (ValidateTask) buildTask(config);
-        assertThrows(FileNotFoundException.class, task::samTemplatePath);
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
         extension.samTemplate = new File("/wrong/path/to/directory");
-        assertThrows(FileNotFoundException.class, task::samTemplatePath);
+        assertThrows(FileNotFoundException.class, task::getSamTemplatePath);
     }
 
     @Test

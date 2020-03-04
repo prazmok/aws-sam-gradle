@@ -3,12 +3,16 @@ package com.github.prazmok.aws.sam;
 import com.github.prazmok.aws.sam.command.SamCommandBuilder;
 import com.github.prazmok.aws.sam.config.Config;
 import com.github.prazmok.aws.sam.config.exception.MissingConfigurationException;
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Set;
 
 public class ValidateTask extends SamCliTask {
@@ -38,7 +42,7 @@ public class ValidateTask extends SamCliTask {
         try {
             samCommandBuilder.task("validate")
                 .option("--debug", config.debug())
-                .argument("--template-file", samTemplatePath())
+                .argument("--template-file", getSamTemplatePath().getAbsolutePath())
                 .argument("--profile", config.getAwsProfile())
                 .argument("--region", config.getAwsRegion());
 
@@ -50,7 +54,8 @@ public class ValidateTask extends SamCliTask {
         return returnCodeCommand(1);
     }
 
-    String samTemplatePath() throws FileNotFoundException {
+    @InputFile
+    File getSamTemplatePath() throws FileNotFoundException {
         File template = config.getSamTemplate();
 
         if (!template.exists() || !template.isFile()) {
@@ -58,6 +63,19 @@ public class ValidateTask extends SamCliTask {
                 + template.getAbsolutePath() + " location!");
         }
 
-        return template.getAbsolutePath();
+        return template;
+    }
+
+    @OutputFile
+    File getOutputFile() throws IOException {
+        String taskName = AwsSamPlugin.VALIDATE_TASK;
+        File tmpDir = new File(getProject().getBuildDir() + "/tmp/" + taskName);
+
+        if (!tmpDir.exists() && !tmpDir.mkdirs()) {
+            logger.error("Couldn't create tmp directory for " + AwsSamPlugin.VALIDATE_TASK);
+        }
+
+        return Files.createTempFile(tmpDir.toPath(), taskName, Long.toString(System.currentTimeMillis()))
+            .toFile();
     }
 }
