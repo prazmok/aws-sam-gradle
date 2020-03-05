@@ -80,8 +80,8 @@ gradlePlugin {
 pluginBundle {
     website = 'https://github.com/prazmok/aws-sam-gradle'
     vcsUrl = 'https://github.com/prazmok/aws-sam-gradle.git'
-    description = 'AWS SAM Gradle plugin easier deployment and development of AWS Lambdas'
-    tags = ['aws', 'sam', 'aws-sam', 'serverless', 'lambda']
+    description = 'Gradle plugin for deploying AWS Serverless applications using AWS SAM CLI'
+    tags = ['aws', 'sam', 'aws-sam', 'aws-sam-cli', 'serverless', 'lambda']
 
     plugins {
         AwsSamPlugin {
